@@ -11,21 +11,13 @@ public class ProjectInit {
 
     @Step("Initialize an empty Gauge project")
     public void projectInit() throws Exception {
-        currentProject.set(new ProjectBuilder()
-                .withLangauge(Util.getCurrentLanguage())
-                .withProjectName("gauge_jira_specs")
-                .withGitConfig()
-                .withoutExampleSpec()
-                .build(false));
+        currentProject.set(new ProjectBuilder().withLangauge(Util.getCurrentLanguage())
+                .withProjectName("gauge_confluence_specs").withGitConfig().withoutExampleSpec().build(false));
     }
 
     @Step("Initialize an empty Gauge project without a Git config")
     public void projectInitWithoutGitConfig() throws Exception {
-        currentProject.set(new ProjectBuilder()
-                .withLangauge(Util.getCurrentLanguage())
-                .withProjectName("gauge_jira_specs")
-                .withoutGitConfig()
-                .withoutExampleSpec()
-                .build(false));
+        currentProject.set(new ProjectBuilder().withLangauge(Util.getCurrentLanguage())
+                .withProjectName("gauge_confluence_specs").withoutGitConfig().withoutExampleSpec().build(false));
     }
 }

@@ -30,7 +30,7 @@ jobs:
         run: |
           cd bin/distros
           if [ -z "$version" ]; then
-            version=$(ls gauge-jira* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-jira-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
+            version=$(ls gauge-confluence* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-confluence-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
           fi
           artifacts=()
           dir=`pwd`
@@ -41,8 +41,8 @@ jobs:
           echo "---------------------------"
           echo "Updating release v$version"
           echo "---------------------------"
-          echo -e "Gauge Jira v$version\n\n" > desc.txt
-          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" agilepathway gauge-jira)
+          echo -e "Gauge Confluence v$version\n\n" > desc.txt
+          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" agilepathway gauge-confluence)
           echo "$release_description" >> desc.txt
           echo "Creating new draft for release v$version"
           hub release create -F ./desc.txt "v$version"

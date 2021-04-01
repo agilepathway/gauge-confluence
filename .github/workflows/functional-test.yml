@@ -24,34 +24,29 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Create Jira plugin binaries on all platforms
+      - name: Create plugin binaries on all platforms
         run: |
           go run build/make.go --all-platforms && go run build/make.go --distro --all-platforms
 
-      - name: Store Jira plugin binaries
+      - name: Store plugin binaries
         uses: actions/upload-artifact@v2
         with:
-          name: gauge-jira-binaries-all-platforms
+          name: binaries-all-platforms
           path: bin/distros/
 
   functional-tests:
-    name: ${{ matrix.language }} ${{ matrix.jira-version }} ${{ matrix.os }} FTs
+    name: ${{ matrix.confluence-version }} ${{ matrix.os }} FTs
     runs-on: ${{ matrix.os }}
     needs: [create-and-store-binaries]
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        language: [java]
-        jira-version: [Jira Server, Jira Cloud]
+        confluence-version: [Cloud]
         include:
-          - jira-version: Jira Server
-            jira-base-url: JIRA_SERVER_BASE_URL
-            jira-username: JIRA_SERVER_USERNAME
-            jira-token: JIRA_SERVER_TOKEN
-          - jira-version: Jira Cloud
-            jira-base-url: JIRA_CLOUD_BASE_URL
-            jira-username: JIRA_CLOUD_USERNAME
-            jira-token: JIRA_CLOUD_TOKEN
+          - confluence-version: Cloud
+            confluence-base-url: CONFLUENCE_CLOUD_BASE_URL
+            confluence-username: CONFLUENCE_CLOUD_USERNAME
+            confluence-token: CONFLUENCE_CLOUD_TOKEN
 
     steps:
       - name: Set up Go 1.15
@@ -77,44 +72,43 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v2
         with:
-          name: gauge-jira-binaries-all-platforms
+          name: binaries-all-platforms
           path: ${{ runner.temp }}
 
-      - name: Install jira plugin (windows)
+      - name: Install plugin (windows)
         working-directory: ${{ runner.temp }}
         if: matrix.os == 'windows-latest'
         run: |
-          gauge install jira --file $(dir *windows.x86_64.zip)
+          gauge install confluence --file $(dir *windows.x86_64.zip)
 
-      - name: Install jira plugin (linux)
+      - name: Install plugin (linux)
         working-directory: ${{ runner.temp }}
         if: matrix.os == 'ubuntu-latest'
         run: |
-          gauge install jira --file $(ls -d *linux.x86_64.zip)
+          gauge install confluence --file $(ls -d *linux.x86_64.zip)
 
-      - name: Install jira plugin (macos)
+      - name: Install plugin (macos)
         working-directory: ${{ runner.temp }}
         if: matrix.os == 'macos-latest'
         run: |
-          gauge install jira --file $(ls -d *darwin.x86_64.zip)
+          gauge install confluence --file $(ls -d *darwin.x86_64.zip)
 
-      - name: FTs ${{ matrix.jira-version }} linux or osx
+      - name: FTs ${{ matrix.confluence-version }} linux or osx
         if: matrix.os != 'windows-latest'
         env:
-          JIRA_BASE_URL: ${{ secrets[matrix.jira-base-url] }}
-          JIRA_USERNAME: ${{ secrets[matrix.jira-username] }}
-          JIRA_TOKEN: ${{ secrets[matrix.jira-token] }}
+          CONFLUENCE_BASE_URL: ${{ secrets[matrix.confluence-base-url] }}
+          CONFLUENCE_USERNAME: ${{ secrets[matrix.confluence-username] }}
+          CONFLUENCE_TOKEN: ${{ secrets[matrix.confluence-token] }}
         run: |
           cd functional-tests
           ./gradlew clean ft
 
-      - name: FTs ${{ matrix.jira-version }} windows
+      - name: FTs ${{ matrix.confluence-version }} windows
         if: matrix.os == 'windows-latest'
         env:
-          JIRA_BASE_URL: ${{ secrets[matrix.jira-base-url] }}
-          JIRA_USERNAME: ${{ secrets[matrix.jira-username] }}
-          JIRA_TOKEN: ${{ secrets[matrix.jira-token] }}
-          SPECS_GIT_URL: ${{ secrets.SPECS_GIT_URL }}
+          CONFLUENCE_BASE_URL: ${{ secrets[matrix.confluence-base-url] }}
+          CONFLUENCE_USERNAME: ${{ secrets[matrix.confluence-username] }}
+          CONFLUENCE_TOKEN: ${{ secrets[matrix.confluence-token] }}
         run: |
           cd functional-tests
           .\gradlew.bat clean ft

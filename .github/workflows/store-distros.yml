@@ -21,12 +21,12 @@ jobs:
         with:
           gauge-version: master
 
-      - name: Create Jira plugin binaries on all platforms
+      - name: Create plugin binaries on all platforms
         run: |
           go run build/make.go --all-platforms && go run build/make.go --distro --all-platforms
 
-      - name: Store Jira plugin binaries
+      - name: Store plugin binaries
         uses: actions/upload-artifact@v2
         with:
-          name: gauge-jira-binaries-all-platforms
+          name: gauge-confluence-binaries-all-platforms
           path: bin/distros/

@@ -11,7 +11,7 @@ func GetRequired(key string) string {
 	value := os.Getenv(key)
 	if value == "" {
 		panic(fmt.Sprintf("Aborting: %s is not set. Set it and try again. "+
-			"See https://github.com/agilepathway/gauge-jira#plugin-setup", key))
+			"See https://github.com/agilepathway/gauge-confluence#plugin-setup", key))
 	}
 
 	return value

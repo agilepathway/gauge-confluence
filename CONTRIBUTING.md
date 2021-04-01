@@ -63,7 +63,7 @@ The unit tests are written in [Go](https://golang.org)
 #### Prerequisites for the unit tests
 
 Set `GAUGE_PROJECT_ROOT` as an environment variable with the full path of the project root directory,
-e.g. `/home/someuser/workspace/gauge-jira`
+e.g. `/home/someuser/workspace/gauge-confluence`
 
 #### Running the unit tests
 

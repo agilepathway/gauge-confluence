@@ -18,18 +18,18 @@ public class Execution {
                 .hasSuccess(result);
     }
 
-    @Step("Publish Jira Documentation for the current project")
-    public void publishJiraDocumentationForCurrentProject() throws Exception {
-        assertOn(getCurrentProject().publishJiraDocumentation(), true);
+    @Step("Publish Confluence Documentation for the current project")
+    public void publishConfluenceDocumentationForCurrentProject() throws Exception {
+        assertOn(getCurrentProject().publishConfluenceDocumentation(), true);
     }
 
-    @Step("Publish Jira Documentation for the current project with no <variable> configured")
-    public void publishJiraDocumentationForCurrentProjectWithConfigVarUnset(String configVar) throws Exception {
-        assertOn(getCurrentProject().publishJiraDocumentationWithConfigVarUnset(configVar), false);
+    @Step("Publish Confluence Documentation for the current project with no <variable> configured")
+    public void publishConfluenceDocumentationForCurrentProjectWithConfigVarUnset(String configVar) throws Exception {
+        assertOn(getCurrentProject().publishConfluenceDocumentationWithConfigVarUnset(configVar), false);
     }
 
-    @Step("Publish Jira Documentation for two projects")
-    public void publishJiraDocumentationForTwoProjects() throws Exception {
-        assertOn(getCurrentProject().publishJiraDocumentationForTwoProjects(), true);
+    @Step("Publish Confluence Documentation for two projects")
+    public void publishConfluenceDocumentationForTwoProjects() throws Exception {
+        assertOn(getCurrentProject().publishConfluenceDocumentationForTwoProjects(), true);
     }
 }

@@ -1,0 +1,38 @@
+name: build
+on:
+  push:
+  pull_request:
+    branches:
+      # Branches from forks have the form 'user:branch-name' so we only run
+      # this job on pull_request events for branches that look like fork
+      # branches. Without this we would end up running this job twice for non
+      # forked PRs, once for the push and then once for opening the PR.
+      # See https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/10
+    - '**:**'
+jobs:
+  build:
+    name: UTs ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Build
+      run: |
+        go run build/make.go
+        go run build/make.go --install
+
+    - name: Unit tests
+      # have to set this env var because of the util package init which requires it to be set
+      env: 
+        GAUGE_PROJECT_ROOT: ${{ github.workspace }}
+      run: go run build/make.go --test --verbose

@@ -1,0 +1,69 @@
+name: Release
+
+on: [deployment]
+
+jobs:
+  deploy:
+    if: github.event.deployment.environment == 'production'
+    runs-on: macos-latest
+    env:
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.13
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Build artifacts
+        run: |
+          go run build/make.go --all-platforms
+          go run build/make.go --all-platforms --distro
+
+      - name: Install hub
+        run: brew install hub
+
+      - name: update
+        run: |
+          cd bin/distros
+          if [ -z "$version" ]; then
+            version=$(ls gauge-jira* | head -1 | sed "s/\.[^\.]*$//" | sed "s/gauge-jira-//" | sed | sed "s/-[a-z]*\.[a-z0-9_]*$//");
+          fi
+          artifacts=()
+          dir=`pwd`
+          for i in `ls`; do
+            artifacts+="$dir/$i "
+          done
+          cd ..
+          echo "---------------------------"
+          echo "Updating release v$version"
+          echo "---------------------------"
+          echo -e "Gauge Jira v$version\n\n" > desc.txt
+          release_description=$(ruby -e "$(curl -sSfL https://github.com/getgauge/gauge/raw/master/build/create_release_text.rb)" agilepathway gauge-jira)
+          echo "$release_description" >> desc.txt
+          echo "Creating new draft for release v$version"
+          hub release create -F ./desc.txt "v$version"
+          rm -rf desc.txt
+          echo "Start uploading assets..."
+          for i in `ls $artifacts`; do
+              hub release edit -m "" -a $i "v$version"
+              if [ $? -ne 0 ];then
+                  exit 1
+              fi
+          done
+      - name: "deployment success"
+        if: success()
+        uses: "deliverybot/status@master"
+        with:
+          state: "success"
+          token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: "deployment failure"
+        if: failure()
+        uses: "deliverybot/status@master"
+        with:
+          state: "failure"
+          token: "${{ secrets.GITHUB_TOKEN }}"

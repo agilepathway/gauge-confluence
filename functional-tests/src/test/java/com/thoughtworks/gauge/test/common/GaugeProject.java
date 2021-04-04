@@ -139,14 +139,14 @@ public abstract class GaugeProject {
         return projectDir;
     }
 
-    public Specification createSpecification(String specsDirName, String name) throws IOException {
+    public Specification createSpecification(String specsDirName, String filename, String specName) throws IOException {
         String specsDir = StringUtils.isEmpty(specsDirName) ? GaugeProject.specsDirName : specsDirName;
-        File specFile = getSpecFile(name, specsDir);
+        File specFile = getSpecFile(filename, specsDir);
         if (specFile.exists()) {
-            throw new RuntimeException("Failed to create specification with name: " + name + "."
+            throw new RuntimeException("Failed to create specification with filename: " + filename + "."
                     + specFile.getAbsolutePath() + ": File already exists");
         }
-        Specification specification = new Specification(name);
+        Specification specification = new Specification(specName);
         specification.saveAs(specFile);
         specifications.add(specification);
         return specification;
@@ -168,9 +168,9 @@ public abstract class GaugeProject {
         return getSpecFile(name, "");
     }
 
-    public Specification findSpecification(String specName) {
+    public Specification findSpecification(String filename) {
         for (Specification specification : specifications) {
-            if (specification.getName().equalsIgnoreCase(specName)) {
+            if (specification.getFilename().equalsIgnoreCase(filename + ".spec")) {
                 return specification;
             }
         }
@@ -209,7 +209,8 @@ public abstract class GaugeProject {
      */
     public ExecutionSummary publishConfluenceDocumentation(String[] args, Map<String, String> envVars)
             throws Exception {
-        envVars.put("CONFLUENCE_SPACE_KEY", (String) Confluence.getScenarioSpaceKey());
+        if (!envVars.containsKey("CONFLUENCE_SPACE_KEY"))
+            envVars.put("CONFLUENCE_SPACE_KEY", (String) Confluence.getScenarioSpaceKey());
         boolean success = executeGaugeCommand(args, envVars);
         return new ExecutionSummary(String.join(" ", args), success, lastProcessStdout, lastProcessStderr);
     }
@@ -219,7 +220,7 @@ public abstract class GaugeProject {
     }
 
     public ExecutionSummary publishConfluenceDocumentationWithConfigVarUnset(String configVar) throws Exception {
-        return publishConfluenceDocumentation(Map.of(configVar, ""));
+        return publishConfluenceDocumentation(new HashMap<String, String>(Map.of(configVar, "")));
     }
 
     public ExecutionSummary publishConfluenceDocumentationForTwoProjects() throws Exception {

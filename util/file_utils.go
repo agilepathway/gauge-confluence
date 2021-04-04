@@ -23,7 +23,7 @@ func IsConceptFile(file string) bool { //nolint:golint
 	return filepath.Ext(file) == ".cpt"
 }
 
-func isValidSpecExtension(path string) bool {
+func IsValidSpecExtension(path string) bool {
 	return AcceptedExtensions[filepath.Ext(path)]
 }
 
@@ -56,7 +56,7 @@ func dirExists(dirPath string) bool {
 	return false
 }
 
-func fileExists(path string) bool {
+func FileExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -68,8 +68,8 @@ func fileExists(path string) bool {
 func GetFiles(path string) []string { //nolint:golint
 	var specFiles []string
 	if dirExists(path) {
-		specFiles = append(specFiles, findFilesIn(path, isValidSpecExtension)...)
-	} else if fileExists(path) && isValidSpecExtension(path) {
+		specFiles = append(specFiles, findFilesIn(path, IsValidSpecExtension)...)
+	} else if FileExists(path) && IsValidSpecExtension(path) {
 		specFiles = append(specFiles, getAbsPath(path))
 	}
 

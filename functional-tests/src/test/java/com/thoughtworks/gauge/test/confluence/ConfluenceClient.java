@@ -9,7 +9,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ConfluenceClient {
@@ -20,6 +20,12 @@ public class ConfluenceClient {
 
     public static void deleteSpace(String spaceKey) {
         sendConfluenceRequest(deleteSpaceRequest(spaceKey));
+    }
+
+    public static JSONArray getAllPages(String spaceKey) {
+        HttpResponse<String> rawResponse = sendConfluenceRequest(getAllPagesRequest(spaceKey));
+        JSONObject jsonResponse = new JSONObject(rawResponse.body());
+        return (JSONArray) jsonResponse.get("results");
     }
 
     private static HttpRequest createSpaceRequest(String spaceKey, String spaceName) {
@@ -40,10 +46,19 @@ public class ConfluenceClient {
         return builder.build();
     }
 
-    private static void sendConfluenceRequest(HttpRequest request) {
+    private static HttpRequest getAllPagesRequest(String spaceKey) {
+        HttpRequest.Builder builder = baseConfluenceRequest();
+        String getAllPagesURL = String.format("%1$s?spaceKey=%2$s&expand=ancestors", baseContentAPIURL(), spaceKey);
+        builder.uri(URI.create(getAllPagesURL));
+        return builder.build();
+    }
+
+    private static HttpResponse<String> sendConfluenceRequest(HttpRequest request) {
         HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
         try {
-            verifySuccessfulResponse(client.send(request, HttpResponse.BodyHandlers.ofString()));
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            verifySuccessfulResponse(response);
+            return response;
         } catch (IOException | InterruptedException e) {
             throw new IllegalStateException("Exception when sending Confluence space request", e);
         }
@@ -66,6 +81,10 @@ public class ConfluenceClient {
 
     private static String baseSpaceAPIURL() {
         return String.format("%1$s/rest/api/space", confluenceBaseURL());
+    }
+
+    private static String baseContentAPIURL() {
+        return String.format("%1$s/rest/api/content", confluenceBaseURL());
     }
 
     private static String basicAuth(String username, String password) {

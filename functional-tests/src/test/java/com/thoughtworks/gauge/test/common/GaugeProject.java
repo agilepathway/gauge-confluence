@@ -198,30 +198,30 @@ public abstract class GaugeProject {
         return exitCode;
     }
 
-    public ExecutionSummary publishJiraDocumentation() throws Exception {
-        return publishJiraDocumentation(Map.of());
+    public ExecutionSummary publishConfluenceDocumentation() throws Exception {
+        return publishConfluenceDocumentation(Map.of());
     }
 
-    public ExecutionSummary publishJiraDocumentation(String[] args, Map<String, String> envVars) throws Exception {
+    public ExecutionSummary publishConfluenceDocumentation(String[] args, Map<String, String> envVars) throws Exception {
         boolean success = executeGaugeCommand(args, envVars);
         return new ExecutionSummary(String.join(" ", args), success, lastProcessStdout, lastProcessStderr);
     }
 
-    public ExecutionSummary publishJiraDocumentation(Map<String, String> envVars) throws Exception {
-        return publishJiraDocumentation(new String[] { "docs", "jira", "specs/" }, envVars);
+    public ExecutionSummary publishConfluenceDocumentation(Map<String, String> envVars) throws Exception {
+        return publishConfluenceDocumentation(new String[] { "docs", "confluence", "specs/" }, envVars);
     }
 
-    public ExecutionSummary publishJiraDocumentationWithConfigVarUnset(String configVar) throws Exception {
-        return publishJiraDocumentation(Map.of(configVar, ""));
+    public ExecutionSummary publishConfluenceDocumentationWithConfigVarUnset(String configVar) throws Exception {
+        return publishConfluenceDocumentation(Map.of(configVar, ""));
     }
 
-    public ExecutionSummary publishJiraDocumentationForTwoProjects() throws Exception {
-        String[] args = new String[] { "docs", "jira", "specs1", "specs2" };
-        return publishJiraDocumentation(args);
+    public ExecutionSummary publishConfluenceDocumentationForTwoProjects() throws Exception {
+        String[] args = new String[] { "docs", "confluence", "specs1", "specs2" };
+        return publishConfluenceDocumentation(args);
     }
 
-    public ExecutionSummary publishJiraDocumentation(String[] args) throws Exception {
-        return publishJiraDocumentation(args, Map.of());
+    public ExecutionSummary publishConfluenceDocumentation(String[] args) throws Exception {
+        return publishConfluenceDocumentation(args, Map.of());
     }
 
     private boolean executeGaugeCommand(String[] args, Map<String, String> envVars)

@@ -37,7 +37,7 @@ const (
 	bin               = "bin"
 	newDirPermissions = 0755
 	gauge             = "gauge"
-	jira              = "jira"
+	confluence        = "confluence"
 	pluginJsonFile    = "plugin.json" //nolint:golint,stylecheck
 )
 
@@ -60,7 +60,7 @@ func compile() {
 	if *allPlatforms {
 		compileAcrossPlatforms()
 	} else {
-		compileGoPackage(jira)
+		compileGoPackage(confluence)
 	}
 }
 
@@ -80,7 +80,7 @@ func createPluginDistro(forAllPlatforms bool) {
 }
 
 func createDistro() {
-	packageName := fmt.Sprintf("%s-%s-%s.%s", "gauge-"+jira, getPluginVersion(), getGOOS(), getArch())
+	packageName := fmt.Sprintf("%s-%s-%s.%s", "gauge-"+confluence, getPluginVersion(), getGOOS(), getArch())
 
 	mirrorFile(pluginJsonFile, filepath.Join(getBinDir(), pluginJsonFile)) //nolint:errcheck,gosec
 	os.Mkdir(filepath.Join(bin, distros), 0755)                            //nolint:errcheck,gosec
@@ -206,7 +206,7 @@ func executeCommand(command string, arg ...string) (string, error) {
 }
 
 func compileGoPackage(packageName string) { //nolint:unparam
-	runProcess("go", "build", "-o", getGaugeExecutablePath(jira))
+	runProcess("go", "build", "-o", getGaugeExecutablePath(confluence))
 }
 
 func getGaugeExecutablePath(file string) string {
@@ -290,12 +290,12 @@ func compileAcrossPlatforms() {
 	for _, platformEnv := range platformEnvs {
 		setEnv(platformEnv)
 		fmt.Printf("Compiling for platform => OS:%s ARCH:%s \n", platformEnv[GOOS], platformEnv[GOARCH])
-		compileGoPackage(jira)
+		compileGoPackage(confluence)
 	}
 }
 
 func installPlugin(installPrefix string) {
-	pluginInstallPath := filepath.Join(installPrefix, jira, getPluginVersion())
+	pluginInstallPath := filepath.Join(installPrefix, confluence, getPluginVersion())
 	mirrorDir(getBinDir(), pluginInstallPath)                                    //nolint:errcheck,gosec
 	mirrorFile(pluginJsonFile, filepath.Join(pluginInstallPath, pluginJsonFile)) //nolint:errcheck,gosec
 }

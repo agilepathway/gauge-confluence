@@ -1,4 +1,4 @@
-package jira
+package confluence
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 
 const (
 	exampleFilename    = "example.spec"
-	specAbsolutePath   = "/home/vscode/workspace/gauge-jira/functional_tests/specs/" + exampleFilename
-	specGitURL         = "https://github.com/agilepathway/gauge-jira/tree/master/functional-tests/specs/" + exampleFilename
+	specAbsolutePath   = "/workspaces/gauge-confluence/functional_tests/specs/" + exampleFilename
+	specGitURL         = "https://github.com/agilepathway/gauge-confluence/tree/master/functional-tests/specs/" + exampleFilename //nolint:lll
 	defaultExampleSpec = `
 ----
 h1. This is the spec heading

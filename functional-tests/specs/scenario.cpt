@@ -1,9 +1,6 @@
-# Create a scenario linked to Jira issue(s) <issuekey>
+# Create a scenario
 
-The JIRA issue key can appear anywhere within the specification.
-It's only for convenience that we're including the issue key in the specification name itself here.
-
-* Create a scenario "Sample scenario" in specification <issuekey> with the following steps with implementation 
+* Create a scenario "Sample scenario" in specification "Sample specification" with the following steps with implementation 
 
    |step text               |implementation                                          |
    |------------------------|--------------------------------------------------------|
@@ -11,8 +8,3 @@ It's only for convenience that we're including the issue key in the specificatio
    |Second step             |"inside second step"                                    |
    |Third step              |"inside third step"                                     |
    |Step with "two" "params"|"inside step with parameters : " + param0 + " " + param1|
-
-
-# Clear description on Jira issue <issuekey>
-
-* Set description "" on Jira issue <issuekey>

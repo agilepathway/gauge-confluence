@@ -1,21 +1,11 @@
-One Jira spec with one scenario
-===============================
-
-tags: java, dotnet, ruby, python, js
+# One Confluence spec with one scenario
 
 * Initialize an empty Gauge project
 
-Basic Jira spec
--------------------------------------
+## Basic Confluence spec
 
-* Create a scenario linked to Jira issue(s) "JIRAGAUGE-1"
+* Create a scenario
 
-* Publish Jira Documentation for the current project
+* Publish Confluence Documentation for the current project
 
-* Console output should be "Published specifications to 1 Jira issue"
-
-* Jira issue "JIRAGAUGE-1" description should contain basic scenario
-
-___
-
-* Clear description on Jira issue "JIRAGAUGE-1"
+* Console output should be "Published 1 specification to Confluence"

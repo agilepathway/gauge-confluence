@@ -7,11 +7,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/agilepathway/gauge-jira/gauge_messages"
-	"github.com/agilepathway/gauge-jira/internal/env"
-	"github.com/agilepathway/gauge-jira/internal/git"
-	"github.com/agilepathway/gauge-jira/internal/jira"
-	"github.com/agilepathway/gauge-jira/util"
+	"github.com/agilepathway/gauge-confluence/gauge_messages"
+	"github.com/agilepathway/gauge-confluence/internal/confluence"
+	"github.com/agilepathway/gauge-confluence/internal/env"
+	"github.com/agilepathway/gauge-confluence/internal/git"
+	"github.com/agilepathway/gauge-confluence/util"
 	"google.golang.org/grpc"
 )
 
@@ -29,7 +29,7 @@ type handler struct {
 func (h *handler) GenerateDocs(c context.Context, m *gauge_messages.SpecDetails) (*gauge_messages.Empty, error) {
 	var ( //nolint:prealloc
 		specsPaths []string // the absolute paths for all the specs
-		specs      []jira.Spec
+		specs      confluence.Specs
 	)
 
 	for _, providedSpecPath := range strings.Split(providedSpecsPaths(), fileSeparator) {
@@ -37,10 +37,10 @@ func (h *handler) GenerateDocs(c context.Context, m *gauge_messages.SpecDetails)
 	}
 
 	for _, specPath := range specsPaths {
-		specs = append(specs, jira.NewSpec(specPath, git.SpecGitURL(specPath, projectRoot)))
+		specs = append(specs, confluence.NewSpec(specPath, git.SpecGitURL(specPath, projectRoot)))
 	}
 
-	jira.PublishSpecs(specs)
+	specs.PublishToConfluence()
 
 	return &gauge_messages.Empty{}, nil
 }
@@ -74,9 +74,9 @@ func main() {
 }
 
 func checkRequiredConfigVars() {
-	env.GetRequired("JIRA_BASE_URL")
-	env.GetRequired("JIRA_USERNAME")
-	env.GetRequired("JIRA_TOKEN")
+	env.GetRequired("CONFLUENCE_BASE_URL")
+	env.GetRequired("CONFLUENCE_USERNAME")
+	env.GetRequired("CONFLUENCE_TOKEN")
 }
 
 // providedSpecsPaths returns the list of specs paths passed in

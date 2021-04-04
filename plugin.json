@@ -1,8 +1,8 @@
 {
-    "id": "jira",
-    "version": "0.4.2",
-    "name": "Jira",
-    "description": "Publishes Gauge specifications to Jira",
+    "id": "confluence",
+    "version": "0.1.0",
+    "name": "Confluence",
+    "description": "Publishes Gauge specifications to Confluence",
     "install": {
         "windows": [],
         "linux": [],
@@ -10,13 +10,13 @@
     },
     "command": {
         "windows": [
-            "jira"
+            "confluence"
         ],
         "linux": [
-            "jira"
+            "confluence"
         ],
         "darwin": [
-            "jira"
+            "confluence"
         ]
     },
     "scope": [

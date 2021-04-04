@@ -3,7 +3,7 @@
 The functional tests are themselves Gauge tests.
 
 They provide full end-to-end test coverage by using the
-plugin to publish Gauge specs to an actual Jira instance.
+plugin to publish Gauge specs to an actual Confluence instance.
 
 The scaffolding for the tests has been lifted and shifted from the
 [gauge-tests](https://github.com/getgauge/gauge-tests) repository. When adding more
@@ -11,7 +11,7 @@ functional tests definitely browse the `gauge-tests` repository for inspiration 
 
 The functional tests run on every push and pull request, triggered by
 [our functional test GitHub Action](../.github/workflows/functional-test.yml),
-and running against both an actual Jira Server instance and an actual Jira Cloud instance.
+and running against both an actual Confluence Server instance and an actual Confluence Cloud instance.
 
 ### Running the functional tests locally
 
@@ -23,10 +23,10 @@ and running against both an actual Jira Server instance and an actual Jira Cloud
 
   * [Install the Java language plugin](https://docs.gauge.org/plugin.html): `gauge install java`
 
-  * [Install the Jira plugin](../README.md#installation)
+  * [Install the Confluence plugin](../README.md#installation)
 (you may want to [install from source](../README.md#build-from-source) to test your latest code)
 
-  * [Setup the Jira plugin](../README.md#plugin-setup) - ask a [core maintainer](../.github/CODEOWNERS) for the values
+  * [Setup the Confluence plugin](../README.md#plugin-setup) - ask a [core maintainer](../.github/CODEOWNERS) for the values
   to populate the required environment variables (or properties file) with.
 
 - Running the tests

@@ -4,6 +4,7 @@ import com.thoughtworks.gauge.Table;
 import com.thoughtworks.gauge.TableRow;
 import com.thoughtworks.gauge.datastore.ScenarioDataStore;
 import com.thoughtworks.gauge.test.StepImpl;
+import com.thoughtworks.gauge.test.confluence.Confluence;
 import com.thoughtworks.gauge.test.git.Config.GitConfig;
 
 import org.apache.commons.io.FileUtils;
@@ -199,10 +200,16 @@ public abstract class GaugeProject {
     }
 
     public ExecutionSummary publishConfluenceDocumentation() throws Exception {
-        return publishConfluenceDocumentation(Map.of());
+        return publishConfluenceDocumentation(new HashMap<String, String>());
     }
 
-    public ExecutionSummary publishConfluenceDocumentation(String[] args, Map<String, String> envVars) throws Exception {
+    /*
+     * Each Gauge scenario in our functional tests gets its own Confluence Space, to
+     * make sure our functional tests can run independently.
+     */
+    public ExecutionSummary publishConfluenceDocumentation(String[] args, Map<String, String> envVars)
+            throws Exception {
+        envVars.put("CONFLUENCE_SPACE_KEY", (String) Confluence.getScenarioSpaceKey());
         boolean success = executeGaugeCommand(args, envVars);
         return new ExecutionSummary(String.join(" ", args), success, lastProcessStdout, lastProcessStderr);
     }
@@ -221,7 +228,7 @@ public abstract class GaugeProject {
     }
 
     public ExecutionSummary publishConfluenceDocumentation(String[] args) throws Exception {
-        return publishConfluenceDocumentation(args, Map.of());
+        return publishConfluenceDocumentation(args, new HashMap<String, String>());
     }
 
     private boolean executeGaugeCommand(String[] args, Map<String, String> envVars)

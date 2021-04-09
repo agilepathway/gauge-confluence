@@ -41,12 +41,16 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        confluence-version: [Cloud]
+        confluence-version: [Cloud, Server]
         include:
           - confluence-version: Cloud
             confluence-base-url: CONFLUENCE_CLOUD_BASE_URL
             confluence-username: CONFLUENCE_CLOUD_USERNAME
             confluence-token: CONFLUENCE_CLOUD_TOKEN
+          - confluence-version: Server
+            confluence-base-url: CONFLUENCE_SERVER_BASE_URL
+            confluence-username: CONFLUENCE_SERVER_USERNAME
+            confluence-token: CONFLUENCE_SERVER_TOKEN
 
     steps:
       - name: Set up Go 1.15

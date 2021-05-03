@@ -8,14 +8,14 @@ NB the spec filenames are not relevant, it's just the spec headings and the dire
 This table shows examples with two specifications, as there needs to be at least two specs for there to be a
 chance of duplicate spec headings.
 
-   |spec 1 heading|spec 1 path     |spec 2 heading|spec 2 path         |result |message             |
-   |--------------|----------------|--------------|--------------------|-------|--------------------|
-   |one           |specs           |two           |specs               |Success|                    |
-   |one           |specs/folder    |two           |specs/folder        |Success|                    |
-   |one           |specs/subfolder1|two           |specs/subfolder2    |Success|                    |
-   |same          |specs/subfolder1|same          |specs/subfolder2    |Failed |duplicate page: same|
-   |one           |specs/same      |two           |specs/subfolder/same|Failed |duplicate page: same|
-   |same          |specs/same      |two           |specs               |Failed |duplicate page: same|
+   |spec 1 heading|spec 1 path  |spec 2 heading|spec 2 path      |result |message                                       |
+   |--------------|-------------|--------------|-----------------|-------|----------------------------------------------|
+   |one           |specs        |two           |specs            |Success|                                              |
+   |one           |specs/folder |two           |specs/folder     |Success|                                              |
+   |one           |specs/folder1|two           |specs/folder2    |Success|                                              |
+   |same          |specs/folder1|same          |specs/folder2    |Failed |2 specs have the same heading                 |
+   |one           |specs/same   |two           |specs/folder/same|Failed |2 directories have the same name              |
+   |same          |specs/same   |two           |specs            |Failed |A spec heading and directory name are the same|
 
 
 ## Publishing to Confluence fails if there are any duplicate spec headings or directory names

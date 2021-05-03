@@ -17,10 +17,11 @@ var projectRoot = util.GetProjectRoot() //nolint:gochecknoglobals
 // page encapsulates a Confluence page.
 type page struct {
 	id           string
-	specPath     string
+	path         string
 	title        string
 	body         string
 	parentPageID string
+	isDir        bool
 }
 
 func newPage(entry gauge.DirEntry, parentPageID string) (page, error) {
@@ -33,7 +34,7 @@ func newPage(entry gauge.DirEntry, parentPageID string) (page, error) {
 
 // newDirPage initialises a new page encapsulating a directory.
 func newDirPage(path, parentPageID string) page {
-	return page{"", path, filepath.Base(path), childrenMacro, parentPageID}
+	return page{"", path, filepath.Base(path), childrenMacro, parentPageID, true}
 }
 
 // newSpecPage initialises a new page encapsulating a Gauge specifiction.
@@ -45,5 +46,9 @@ func newSpecPage(entry gauge.DirEntry, parentPageID string) (page, error) {
 		return page{}, err
 	}
 
-	return page{"", spec.path, spec.heading(), spec.confluenceFmt(), parentPageID}, nil
+	return page{"", spec.path, spec.heading(), spec.confluenceFmt(), parentPageID, false}, nil
+}
+
+func (p *page) isSpec() bool {
+	return !p.isDir
 }

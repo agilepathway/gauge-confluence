@@ -65,28 +65,29 @@ func (p *Publisher) publishIfDirOrSpec(path string, d fs.DirEntry, err error) er
 }
 
 func (p *Publisher) publishDirOrSpec(entry gauge.DirEntry) error {
-	page, err := newPage(entry, p.space.parentPageIDFor(entry.Path))
+	pg, err := newPage(entry, p.space.parentPageIDFor(entry.Path))
 	if err != nil {
 		return err
 	}
 
-	return p.publishPage(page)
+	return p.publishPage(pg)
 }
 
-func (p *Publisher) publishPage(page page) (err error) {
-	if p.space.hasDuplicateTitle(page) {
-		return fmt.Errorf("duplicate page: %s", page.title)
+func (p *Publisher) publishPage(pg page) (err error) {
+	err = p.space.checkForDuplicateTitle(pg)
+	if err != nil {
+		return err
 	}
 
-	publishedPageID, err := p.apiClient.PublishPage(p.space.key, page.title, page.body, page.parentPageID)
+	publishedPageID, err := p.apiClient.PublishPage(p.space.key, pg.title, pg.body, pg.parentPageID)
 
 	if err != nil {
 		return err
 	}
 
-	page.id = publishedPageID
+	pg.id = publishedPageID
 
-	p.space.publishedPages[page.specPath] = page
+	p.space.publishedPages[pg.path] = pg
 
 	return nil
 }

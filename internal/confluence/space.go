@@ -24,13 +24,13 @@ func (s *space) parentPageIDFor(path string) string {
 	return parentPageID
 }
 
-// hasDuplicateTitle is true if the given page has the same title as an already published page.
-func (s *space) hasDuplicateTitle(page page) bool {
+// checkForDuplicateTitle returns an error if the given page has the same title as an already published page.
+func (s *space) checkForDuplicateTitle(given page) error {
 	for _, p := range s.publishedPages {
-		if p.title == page.title {
-			return true
+		if p.title == given.title {
+			return &duplicatePageError{p, given}
 		}
 	}
 
-	return false
+	return nil
 }

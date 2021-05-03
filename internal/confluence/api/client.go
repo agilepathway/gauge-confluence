@@ -1,4 +1,4 @@
-// Package api provides a Confluence API client
+// Package api provides a Confluence API client.
 package api
 
 import (
@@ -12,18 +12,18 @@ import (
 	goconfluence "github.com/virtomize/confluence-go-api"
 )
 
-// Client is a Confluence API client
+// Client is a Confluence API client.
 type Client struct {
 	goconfluenceClient *goconfluence.API
 	httpClient         http.Client
 }
 
-// NewClient initialises a new Client
+// NewClient initialises a new Client.
 func NewClient() Client {
 	return Client{confluenceClient(), httpClient()}
 }
 
-// PublishPage publishes a page to Confluence as a child of the given parent page
+// PublishPage publishes a page to Confluence as a child of the given parent page.
 func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID string, err error) {
 	requestContent := &goconfluence.Content{
 		Type:  "page",
@@ -53,7 +53,7 @@ func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID
 	return responseContent.ID, nil
 }
 
-// SpaceHomepageID retrieves the page ID for the given Space's homepage
+// SpaceHomepageID retrieves the page ID for the given Space's homepage.
 func (c *Client) SpaceHomepageID(spaceKey string) (string, error) {
 	path := fmt.Sprintf("space?spaceKey=%s&expand=homepage", spaceKey)
 

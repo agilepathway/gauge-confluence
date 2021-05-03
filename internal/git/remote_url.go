@@ -7,7 +7,7 @@ import (
 )
 
 // discoverRemoteGitURL discovers the remote git URL from the git configuration in the
-// `.git` directory located in the current directory or parent directories
+// `.git` directory located in the current directory or parent directories.
 func discoverRemoteGitURL() (string, error) {
 	_, gitConfig, err := findGitConfigDir()
 	if err != nil {
@@ -22,7 +22,7 @@ func discoverRemoteGitURL() (string, error) {
 	return remoteGitURL, nil
 }
 
-// discoverRemoteGitURLFromGitConfig discovers the remote git URL from the given git configuration
+// discoverRemoteGitURLFromGitConfig discovers the remote git URL from the given git configuration.
 func discoverRemoteGitURLFromGitConfig(gitConf string) (string, error) {
 	cfg, err := parseGitConfig(gitConf)
 	if err != nil {
@@ -44,7 +44,7 @@ func discoverRemoteGitURLFromGitConfig(gitConf string) (string, error) {
 	return rURL, nil
 }
 
-// getRemoteURL returns the remote URL from the given git config
+// getRemoteURL returns the remote URL from the given git config.
 func getRemoteURL(config *gitcfg.Config, name string) string {
 	if config.Remotes != nil {
 		return firstRemoteURL(config.Remotes[name])

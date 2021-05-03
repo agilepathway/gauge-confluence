@@ -17,7 +17,7 @@ type Spec struct {
 	gitURL   string // the URL for the spec on e.g. GitHub, GitLab, Bitbucket
 }
 
-// NewSpec returns a new Spec for the spec at the given absolute path
+// NewSpec returns a new Spec for the spec at the given absolute path.
 func NewSpec(absolutePath, gitURL string) Spec {
 	return Spec{absolutePath, readMarkdown(absolutePath), gitURL}
 }

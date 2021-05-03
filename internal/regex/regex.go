@@ -1,4 +1,4 @@
-// Package regex implements simple regex utility functions
+// Package regex implements simple regex utility functions.
 package regex
 
 import (

@@ -1,4 +1,4 @@
-// Package http provides a low-level Confluence API HTTP client
+// Package http provides a low-level Confluence API HTTP client.
 package http
 
 import (
@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// Client is a low-level Confluence API HTTP client
+// Client is a low-level Confluence API HTTP client.
 type Client struct {
 	restEndpoint string
 	username     string
@@ -18,7 +18,7 @@ type Client struct {
 	httpClient   *http.Client
 }
 
-// NewClient initialises a new low-level Confluence API HTTP client
+// NewClient initialises a new low-level Confluence API HTTP client.
 func NewClient(restEndpoint string, username string, token string) Client {
 	httpClient := &http.Client{
 		Timeout: time.Second * 10, //nolint: gomnd
@@ -27,7 +27,7 @@ func NewClient(restEndpoint string, username string, token string) Client {
 	return Client{restEndpoint, username, token, httpClient}
 }
 
-// GetJSON sends an HTTP GET request and stores the JSON response in the value pointed to by v
+// GetJSON sends an HTTP GET request and stores the JSON response in the value pointed to by v.
 func (c *Client) GetJSON(path string, v interface{}) error {
 	responseBody, err := c.httpGet(path)
 	if err != nil {

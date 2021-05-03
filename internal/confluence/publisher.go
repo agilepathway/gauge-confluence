@@ -11,19 +11,19 @@ import (
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
 )
 
-// Publisher publishes Gauge specifications to Confluence
+// Publisher publishes Gauge specifications to Confluence.
 type Publisher struct {
 	apiClient api.Client
 	space     space
 }
 
-// NewPublisher instantiates a new Publisher
+// NewPublisher instantiates a new Publisher.
 func NewPublisher() Publisher {
 	spaceKey := env.GetRequired("CONFLUENCE_SPACE_KEY")
 	return Publisher{api.NewClient(), newSpace(spaceKey)}
 }
 
-// Publish publishes all Gauge specifications under the given paths to Confluence
+// Publish publishes all Gauge specifications under the given paths to Confluence.
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 

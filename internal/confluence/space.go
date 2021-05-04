@@ -13,6 +13,10 @@ func newSpace(key string) space {
 	return space{key, "", make(map[string]page)}
 }
 
+func (s *space) isValid() bool {
+	return s.homepageID != ""
+}
+
 func (s *space) parentPageIDFor(path string) string {
 	parentDir := filepath.Dir(path)
 	parentPageID := s.publishedPages[parentDir].id

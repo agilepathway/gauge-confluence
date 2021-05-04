@@ -27,14 +27,11 @@ func NewPublisher() Publisher {
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 
-	spaceHomepageID, err := p.apiClient.SpaceHomepageID(p.space.key)
+	p.setupSpace()
 
-	if err != nil {
-		fmt.Printf("Failed: %v", err)
+	if !p.space.isValid() {
 		return
 	}
-
-	p.space.homepageID = spaceHomepageID
 
 	for _, specPath := range specPaths {
 		err = p.publishAllSpecsUnder(specPath)
@@ -43,11 +40,26 @@ func (p *Publisher) Publish(specPaths []string) {
 		}
 	}
 
-	if err == nil {
-		fmt.Printf("Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
-	} else {
-		fmt.Printf("Failed: %v", err)
+	if err != nil {
+		p.printFailureMessage(err)
+		return
 	}
+
+	fmt.Printf("Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
+}
+
+func (p *Publisher) setupSpace() {
+	spaceHomepageID, err := p.apiClient.SpaceHomepageID(p.space.key)
+	if err != nil {
+		p.printFailureMessage(err)
+		return
+	}
+
+	p.space.homepageID = spaceHomepageID
+}
+
+func (p *Publisher) printFailureMessage(err error) {
+	fmt.Printf("Failed: %v", err)
 }
 
 func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {

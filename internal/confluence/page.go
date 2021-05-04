@@ -16,29 +16,29 @@ var projectRoot = util.GetProjectRoot() //nolint:gochecknoglobals
 
 // page encapsulates a Confluence page.
 type page struct {
-	id           string
-	path         string
-	title        string
-	body         string
-	parentPageID string
-	isDir        bool
+	id       string
+	title    string
+	path     string
+	body     string
+	parentID string
+	isDir    bool
 }
 
-func newPage(entry gauge.DirEntry, parentPageID string) (page, error) {
+func newPage(entry gauge.DirEntry, parentID string) (page, error) {
 	if entry.IsDir() {
-		return newDirPage(entry.Path, parentPageID), nil
+		return newDirPage(entry.Path, parentID), nil
 	}
 
-	return newSpecPage(entry, parentPageID)
+	return newSpecPage(entry, parentID)
 }
 
 // newDirPage initialises a new page encapsulating a directory.
-func newDirPage(path, parentPageID string) page {
-	return page{"", path, filepath.Base(path), childrenMacro, parentPageID, true}
+func newDirPage(path, parentID string) page {
+	return page{title: filepath.Base(path), path: path, body: childrenMacro, parentID: parentID, isDir: true}
 }
 
 // newSpecPage initialises a new page encapsulating a Gauge specifiction.
-func newSpecPage(entry gauge.DirEntry, parentPageID string) (page, error) {
+func newSpecPage(entry gauge.DirEntry, parentID string) (page, error) {
 	spec := NewSpec(entry.Path, git.SpecGitURL(entry.Path, projectRoot))
 
 	err := spec.validate()
@@ -46,7 +46,7 @@ func newSpecPage(entry gauge.DirEntry, parentPageID string) (page, error) {
 		return page{}, err
 	}
 
-	return page{"", spec.path, spec.heading(), spec.confluenceFmt(), parentPageID, false}, nil
+	return page{title: spec.heading(), path: spec.path, body: spec.confluenceFmt(), parentID: parentID, isDir: false}, nil
 }
 
 func (p *page) isSpec() bool {

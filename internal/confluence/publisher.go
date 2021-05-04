@@ -91,7 +91,7 @@ func (p *Publisher) publishPage(pg page) (err error) {
 		return err
 	}
 
-	publishedPageID, err := p.apiClient.PublishPage(p.space.key, pg.title, pg.body, pg.parentPageID)
+	publishedPageID, err := p.apiClient.PublishPage(p.space.key, pg.title, pg.body, pg.parentID)
 
 	if err != nil {
 		return err

@@ -1,11 +1,17 @@
-# Configuration variables are required
+# Configuration variables are required to be set
 
-## Required configuration variables must be set
+   |config variable     |
+   |--------------------|
+   |CONFLUENCE_BASE_URL |
+   |CONFLUENCE_USERNAME |
+   |CONFLUENCE_TOKEN    |
+   |CONFLUENCE_SPACE_KEY|
 
-* Required configuration variable "CONFLUENCE_BASE_URL" must be set
+## The plugin fails if required configuration variables are not set
 
-* Required configuration variable "CONFLUENCE_USERNAME" must be set
+* Required configuration variable <config variable> must be set
 
-* Required configuration variable "CONFLUENCE_TOKEN" must be set
 
-* Required configuration variable "CONFLUENCE_SPACE_KEY" must be set
+______________________________________________________________________________
+
+Read more about [Gauge's configuration documentation](https://docs.gauge.org/configuration.html)

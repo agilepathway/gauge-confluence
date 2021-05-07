@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
-	"strings"
 
+	gauge "github.com/agilepathway/gauge-confluence/gauge_messages"
 	"github.com/agilepathway/gauge-confluence/internal/regex"
 	"github.com/agilepathway/gauge-confluence/util"
 )
 
 // Spec decorates a Gauge specification so it can be published to Confluence.
 type Spec struct {
-	path     string // absolute path to the specification file, including the filename
-	markdown string // the spec contents
-	gitURL   string // the URL for the spec on e.g. GitHub, GitLab, Bitbucket
+	path      string // absolute path to the specification file, including the filename
+	protoSpec *gauge.ProtoSpec
+	markdown  string // the spec contents
+	gitURL    string // the URL for the spec on e.g. GitHub, GitLab, Bitbucket
 }
 
 // NewSpec returns a new Spec for the spec at the given absolute path.
-func NewSpec(absolutePath, gitURL string) Spec {
-	return Spec{absolutePath, readMarkdown(absolutePath), gitURL}
+func NewSpec(absolutePath string, protoSpec *gauge.ProtoSpec, gitURL string) Spec {
+	return Spec{absolutePath, protoSpec, readMarkdown(absolutePath), gitURL}
 }
 
 func (s *Spec) validate() error {
@@ -31,15 +32,7 @@ func (s *Spec) validate() error {
 }
 
 func (s *Spec) heading() string {
-	confluenceFmt := s.confluenceFmt()
-	headerPattern := regexp.MustCompile(`h1\.(.*)`)
-	matches := headerPattern.FindStringSubmatch(confluenceFmt)
-
-	if len(matches) <= 1 {
-		return ""
-	}
-
-	return strings.TrimSpace(matches[1])
+	return s.protoSpec.SpecHeading
 }
 
 func (s *Spec) confluenceFmt() string {

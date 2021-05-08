@@ -50,8 +50,7 @@ public class Confluence {
     }
 
     private void assertConsoleSuccessOutput(int totalPages) throws IOException {
-        Console console = new Console();
-        console.outputIs(
+        new Console().outputContains(
                 String.format("Success: published %d specs and directory pages to Confluence", totalPages));
     }
 

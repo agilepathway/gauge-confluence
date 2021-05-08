@@ -25,7 +25,7 @@ func NewSpec(absolutePath string, protoSpec *gauge.ProtoSpec, gitURL string) Spe
 
 func (s *Spec) validate() error {
 	if s.heading() == "" {
-		return fmt.Errorf("could not find a spec heading in spec %s", s.path)
+		return &invalidSpecError{*s}
 	}
 
 	return nil

@@ -9,6 +9,7 @@ import (
 	"github.com/agilepathway/gauge-confluence/gauge_messages"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/env"
+	"github.com/agilepathway/gauge-confluence/internal/errors"
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
 	"github.com/agilepathway/gauge-confluence/internal/git"
 )
@@ -81,13 +82,20 @@ func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {
 }
 
 func (p *Publisher) publishIfDirOrSpec(path string, d fs.DirEntry, err error) error {
+	var e error
+
 	entry := gauge.NewDirEntry(path, d)
 
 	if entry.IsDirOrSpec() {
-		return p.publishDirOrSpec(entry)
+		e = p.publishDirOrSpec(entry)
 	}
 
-	return nil
+	if errors.IsNonfatal(e) {
+		fmt.Printf("Skipping file: %v", e)
+		return nil
+	}
+
+	return e
 }
 
 func (p *Publisher) publishDirOrSpec(entry gauge.DirEntry) error {

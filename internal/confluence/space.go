@@ -1,20 +1,38 @@
 package confluence
 
-import "path/filepath"
+import (
+	"fmt"
+	"path/filepath"
+
+	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+)
 
 type space struct {
-	key            string
-	homepageID     string
-	publishedPages map[string]page // keyed by filepath
+	key                        string
+	homepageID                 string
+	homepageNumberOfChildren   int
+	homepageCreated            time.Time
+	publishedPages             map[string]page // Pages published by current invocation of the plugin, keyed by filepath
+	lastPublished              time.LastPublished
+	modifiedSinceLastPublished bool
 }
 
 // newSpace initialises a new space.
 func newSpace(key string) space {
-	return space{key, "", make(map[string]page)}
+	return space{key: key, publishedPages: make(map[string]page)}
 }
 
-func (s *space) isValid() bool {
-	return s.homepageID != ""
+func (s *space) isValid() (bool, string) {
+	if s.modifiedSinceLastPublished {
+		fmt.Println()
+		return false, fmt.Sprintf("the space has been modified since the last publish. Space key: %s", s.key)
+	}
+
+	if s.homepageID == "" {
+		return false, fmt.Sprintf("could not obtain a homepage ID for space: %s", s.key)
+	}
+
+	return true, ""
 }
 
 func (s *space) parentPageIDFor(path string) string {

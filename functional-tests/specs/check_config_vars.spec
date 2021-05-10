@@ -12,6 +12,6 @@
 * Required configuration variable <config variable> must be set
 
 
-______________________________________________________________________________
+________________________________________________________________________________________________
 
 Read more about [Gauge's configuration documentation](https://docs.gauge.org/configuration.html)

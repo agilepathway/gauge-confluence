@@ -28,6 +28,10 @@ public class ConfluenceClient {
         return (JSONArray) jsonResponse.get("results");
     }
 
+    public static void createPage(String spaceKey) {
+        sendConfluenceRequest(createPageRequest(spaceKey));
+    }
+
     private static HttpRequest createSpaceRequest(String spaceKey, String spaceName) {
         JSONObject description = new JSONObject().put("plain",
                 new JSONObject().put("value", spaceName).put("representation", "plain"));
@@ -35,6 +39,17 @@ public class ConfluenceClient {
         HttpRequest.Builder builder = baseConfluenceRequest();
         builder.uri(URI.create(baseSpaceAPIURL()));
         builder.POST(BodyPublishers.ofString(body.toString()));
+        return builder.build();
+    }
+
+    private static HttpRequest createPageRequest(String spaceKey) {
+        JSONObject space = new JSONObject().put("key", spaceKey);
+        JSONObject storage = new JSONObject().put("value", "content").put("representation", "storage");
+        JSONObject requestBody = new JSONObject().put("type", "page").put("title", "new page").put("space", space)
+                .put("body", new JSONObject().put("storage", storage));
+        HttpRequest.Builder builder = baseConfluenceRequest();
+        builder.uri(URI.create(baseContentAPIURL()));
+        builder.POST(BodyPublishers.ofString(requestBody.toString()));
         return builder.build();
     }
 

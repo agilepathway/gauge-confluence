@@ -1,14 +1,14 @@
 # Spec validity for publishing to Confluence
 
-## Specs without a heading are skipped
+## Specs without a heading are not published to Confluence
 
 * Publish specs to Confluence:
 
-   |heading|
-   |-------|
-   |spec 1 |
-   |       |
-   |spec 3 |
+   |has heading|heading|
+   |-----------|-------|
+   |yes        |Spec 1 |
+   |no         |       |
+   |yes        |Spec 3 |
 
 * Published pages are:
 
@@ -16,7 +16,7 @@
    |-----------------------------------|-----------------------------------|
    |Temporary Gauge Scenario Space Home|                                   |
    |specs                              |Temporary Gauge Scenario Space Home|
-   |spec 1                             |specs                              |
-   |spec 3                             |specs                              |
+   |Spec 1                             |specs                              |
+   |Spec 3                             |specs                              |
 
 * Output contains "Skipping file: could not find a spec heading"

@@ -106,7 +106,7 @@ func createZipFromUtil(dir, name string) {
 }
 
 func isExecMode(mode os.FileMode) bool {
-	return (mode & 0111) != 0
+	return (mode & 0111) != 0 //nolint:gomnd
 }
 
 func mirrorFile(src, dst string) error {

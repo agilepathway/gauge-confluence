@@ -11,7 +11,7 @@ import (
 	gitcfg "github.com/go-git/go-git/v5/config"
 )
 
-// findGitConfigDir tries to find the `.git` directory either in the current directory or in parent directories
+// findGitConfigDir tries to find the `.git` directory either in the current directory or in parent directories.
 func findGitConfigDir() (string, string, error) {
 	return findGitFile("config")
 }

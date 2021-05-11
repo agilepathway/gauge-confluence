@@ -9,20 +9,20 @@ import com.thoughtworks.gauge.Step;
 
 public class Console {
 
-    @Step({ "Console should contain <message>", "The error message <message> should be displayed on console" })
-    public void consoleShouldContain(String message) throws IOException {
+    @Step({ "Output contains <message>", "The error message <message> should be output" })
+    public void outputContains(String message) throws IOException {
         String output = getCurrentProject().getStdOut();
         assertThat(output).contains(message);
     }
 
-    @Step({ "Console should contain <message> <message2> <message3>" })
-    public void consoleShouldContainMessages(String message, String message2, String message3) throws IOException {
+    @Step({ "Output contains <message> <message2> <message3>" })
+    public void outputContainsMessages(String message, String message2, String message3) throws IOException {
         String output = getCurrentProject().getStdOut();
         assertThat(output).contains(message + message2 + message3);
     }
 
-    @Step({ "Console output should be <message>" })
-    public void consoleOutputShouldBe(String message) throws IOException {
+    @Step({ "Output is <message>" })
+    public void outputIs(String message) throws IOException {
         String output = getCurrentProject().getStdOut();
         assertThat(output.trim()).isEqualTo(message);
     }

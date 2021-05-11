@@ -11,7 +11,7 @@ import (
 var scpLikeURIRegExp = regexp.MustCompile(`^(?:(?P<user>[^@]+)@)?(?P<host>[^:\s]+):(?:(?P<port>[0-9]{1,5})(?:\/|:))?(?P<path>[^\\].*\/[^\\].*)$`) //nolint:lll
 
 // SpecGitURL gives the remote Git URL (e.g. on GitHub, GitLab, Bitbucket etc) for a spec file
-// Returns "" if the remote Git URL could not be obtained
+// Returns "" if the remote Git URL could not be obtained.
 func SpecGitURL(absoluteSpecPath, projectRoot string) string {
 	remoteGitURL, err := discoverRemoteGitURL()
 
@@ -39,7 +39,7 @@ func SpecGitURL(absoluteSpecPath, projectRoot string) string {
 	return gitWebURL + "/blob/" + branch + toURLFormat(relativeSpecPath)
 }
 
-// buildGitWebURL constructs the publicly accessible Git web URL from a Git remote URL
+// buildGitWebURL constructs the publicly accessible Git web URL from a Git remote URL.
 func buildGitWebURL(remoteGitURI string) (string, error) {
 	url, err := url.Parse(remoteGitURI)
 
@@ -84,7 +84,7 @@ func gitWebURLScheme(input string) string {
 	return "https"
 }
 
-// toURLFormat converts any Windows path slashes to URL format (i.e. forward slashes)
+// toURLFormat converts any Windows path slashes to URL format (i.e. forward slashes).
 func toURLFormat(input string) string {
 	return strings.ReplaceAll(input, "\\", "/")
 }

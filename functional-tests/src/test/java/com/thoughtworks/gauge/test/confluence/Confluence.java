@@ -1,9 +1,16 @@
 package com.thoughtworks.gauge.test.confluence;
 
 import com.thoughtworks.gauge.BeforeScenario;
+import com.thoughtworks.gauge.Step;
+import com.thoughtworks.gauge.Table;
+import com.thoughtworks.gauge.TableRow;
 import com.thoughtworks.gauge.AfterScenario;
 import com.thoughtworks.gauge.datastore.ScenarioDataStore;
+import com.thoughtworks.gauge.test.implementation.Console;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
 import java.time.Instant;
 
 public class Confluence {
@@ -28,6 +35,24 @@ public class Confluence {
 
     public String currentTimeInMilliseconds() {
         return String.valueOf(Instant.now().toEpochMilli());
+    }
+
+    @Step("Published pages are: <table>")
+    public void createSpec(Table expectedPages) throws Exception {
+        int expectedTotal = expectedPages.getTableRows().size();
+        assertConsoleSuccessOutput(expectedTotal - 1); // don't count the homepage as we don't publish it
+        Space space = new Space(getScenarioSpaceKey());
+        assertThat(space.totalPages()).isEqualTo(expectedTotal);
+        for (TableRow row : expectedPages.getTableRows()) {
+            String actualParentPageTitle = space.getParentPageTitle(row.getCell("title"));
+            assertThat(actualParentPageTitle).isEqualTo(row.getCell("parent"));
+        }
+    }
+
+    private void assertConsoleSuccessOutput(int totalPages) throws IOException {
+        Console console = new Console();
+        console.outputIs(
+                String.format("Success: published %d specs and directory pages to Confluence", totalPages));
     }
 
 }

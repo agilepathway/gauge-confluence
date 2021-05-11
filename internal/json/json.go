@@ -3,7 +3,7 @@ package json
 
 import "fmt"
 
-// Fmt formats a string in JSON format
+// Fmt formats a string in JSON format.
 func Fmt(input string) string {
 	return removeOpeningAndClosingQuotes(fmt.Sprintf("%#v", input))
 }

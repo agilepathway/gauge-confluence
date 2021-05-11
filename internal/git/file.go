@@ -42,7 +42,7 @@ func findGitFile(fileName string) (string, string, error) {
 	}
 }
 
-// fileExists checks if path exists and is a file
+// fileExists checks if path exists and is a file.
 func fileExists(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
 	if err == nil {

@@ -84,7 +84,7 @@ If you find a problem with a particular version of Confluence, please
 
 ### Plugin setup
 
-There are three variables to configure, as either:
+There are four variables to configure, as either:
 
 1. environment variables
 
@@ -92,13 +92,22 @@ There are three variables to configure, as either:
    [properties file](https://docs.gauge.org/configuration.html#local-configuration-of-gauge-default-properties),
    e.g. `<project_root>/env/default/anythingyoulike.properties`
 
-The three variables to configure are:
+The four variables to configure are:
 
-`CONFLUENCE_BASE_URL` e.g. `https://example.com` for Confluence Server, or `https://example.atlassian.net` for Confluence Cloud
+`CONFLUENCE_BASE_URL` e.g. `https://example.com/path-to-your-confluence-wiki` for Confluence Server, or `https://example.atlassian.net` for Confluence Cloud
 
 `CONFLUENCE_USERNAME`
 
 `CONFLUENCE_TOKEN`
+
+`CONFLUENCE_SPACE_KEY`
+
+Use a dedicated [Confluence Space](https://support.atlassian.com/confluence-cloud/docs/use-spaces-to-organize-your-work/)
+that will contain just the Gauge specifications and nothing else.  
+
+NB You can use [Confluence's include macro](https://confluence.atlassian.com/doc/include-page-macro-139514.html)
+to include the [page tree](https://confluence.atlassian.com/conf59/page-tree-macro-792499177.html) of Gauge Specs
+(that gets created by this plugin) in as many of your existing spaces as you like.
 
 
 ### Running the plugin (i.e. publishing specs to Confluence)

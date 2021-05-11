@@ -17,6 +17,7 @@ public class SpecificationBuilder {
 
     private String specName;
     private String subDirPath;
+    private String filename;
     private Table datatable;
 
     public SpecificationBuilder() {
@@ -42,6 +43,20 @@ public class SpecificationBuilder {
         return this;
     }
 
+    /**
+     * Provide just the filename, not the file extension
+     */
+    public SpecificationBuilder withFilename(String filename) {
+        this.filename = filename;
+        return this;
+    }
+
+    public String getFilename() {
+        if (filename == null)
+            return specName;
+        return filename;
+    }
+
     public SpecificationBuilder withSpecName(String specName) {
         this.specName = specName;
         return this;
@@ -65,9 +80,9 @@ public class SpecificationBuilder {
     }
 
     public void buildAndAddToProject(boolean dedupScenario) throws Exception {
-        Specification spec = getCurrentProject().findSpecification(specName);
+        Specification spec = getCurrentProject().findSpecification(getFilename());
         if (spec == null) {
-            spec = getCurrentProject().createSpecification(subDirPath, specName);
+            spec = getCurrentProject().createSpecification(subDirPath, getFilename(), specName);
         }
 
         contextBuilder.withSpecification(spec);
@@ -118,12 +133,14 @@ public class SpecificationBuilder {
     }
 
     public SpecificationBuilder withDataStoreWriteStatement(List<String> columnNames, TableRow row) {
-        scenarioBuilder.addSteps(columnNames, row.getCell("step text"), getCurrentProject().getDataStoreWriteStatement(row, columnNames));
+        scenarioBuilder.addSteps(columnNames, row.getCell("step text"),
+                getCurrentProject().getDataStoreWriteStatement(row, columnNames));
         return this;
     }
 
     public SpecificationBuilder withDataStorePrintValues(List<String> columnNames, TableRow tableRow) {
-        scenarioBuilder.addSteps(columnNames, tableRow.getCell("step text"), getCurrentProject().getDataStorePrintValueStatement(tableRow, columnNames));
+        scenarioBuilder.addSteps(columnNames, tableRow.getCell("step text"),
+                getCurrentProject().getDataStorePrintValueStatement(tableRow, columnNames));
         return this;
     }
 

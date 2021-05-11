@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"regexp"
+	"strings"
 
 	"github.com/agilepathway/gauge-confluence/internal/regex"
 	"github.com/agilepathway/gauge-confluence/util"
@@ -13,12 +14,36 @@ import (
 type Spec struct {
 	path     string // absolute path to the specification file, including the filename
 	markdown string // the spec contents
-	gitURL   string // the URL for the specs directory on e.g. GitHub, GitLab, Bitbucket
+	gitURL   string // the URL for the spec on e.g. GitHub, GitLab, Bitbucket
 }
 
-// NewSpec returns a new Spec object for the spec at the given absolute path
-func NewSpec(absolutePath string, gitURL string) Spec {
+// NewSpec returns a new Spec for the spec at the given absolute path.
+func NewSpec(absolutePath, gitURL string) Spec {
 	return Spec{absolutePath, readMarkdown(absolutePath), gitURL}
+}
+
+func (s *Spec) validate() error {
+	if s.heading() == "" {
+		return fmt.Errorf("could not find a spec heading in spec %s", s.path)
+	}
+
+	return nil
+}
+
+func (s *Spec) heading() string {
+	confluenceFmt := s.confluenceFmt()
+	headerPattern := regexp.MustCompile(`h1\.(.*)`)
+	matches := headerPattern.FindStringSubmatch(confluenceFmt)
+
+	if len(matches) <= 1 {
+		return ""
+	}
+
+	return strings.TrimSpace(matches[1])
+}
+
+func (s *Spec) confluenceFmt() string {
+	return markdownToConfluence(s.markdown)
 }
 
 func (s *Spec) addGitLinkAfterSpecHeading(spec string) string {

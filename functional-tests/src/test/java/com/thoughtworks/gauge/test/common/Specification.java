@@ -132,6 +132,10 @@ public class Specification {
         return specFile;
     }
 
+    public String getFilename() {
+        return specFile.getName();
+    }
+
     public void addTags(String tags) {
         this.tags = tags;
     }

@@ -12,11 +12,11 @@
 
 * Published pages are:
 
-   |title                              |parent                             |
-   |-----------------------------------|-----------------------------------|
-   |Temporary Gauge Scenario Space Home|                                   |
-   |specs                              |Temporary Gauge Scenario Space Home|
-   |Spec 1                             |specs                              |
-   |Spec 3                             |specs                              |
+   |title     |parent    |
+   |----------|----------|
+   |Space Home|          |
+   |specs     |Space Home|
+   |Spec 1    |specs     |
+   |Spec 3    |specs     |
 
 * Output contains "Skipping file: could not find a spec heading"

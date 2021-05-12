@@ -15,14 +15,14 @@ as well as a Confluence page being created for each spec, a page is also created
 
 * Published pages are:
 
-   |title                                |parent                             |
-   |-------------------------------------|-----------------------------------|
-   |Temporary Gauge Scenario Space Home  |                                   |
-   |specs                                |Temporary Gauge Scenario Space Home|
-   |specs dir spec                       |specs                              |
-   |subfolder                            |specs                              |
-   |specs subfolder dir spec             |subfolder                          |
-   |subfolder2                           |specs                              |
-   |specs subfolder2 dir spec            |subfolder2                         |
-   |subsubfolder                         |subfolder                          |
-   |specs subfolder subsubfolder dir spec|subsubfolder                       |
+   |title                                |parent      |
+   |-------------------------------------|------------|
+   |Space Home                           |            |
+   |specs                                |Space Home  |
+   |specs dir spec                       |specs       |
+   |subfolder                            |specs       |
+   |specs subfolder dir spec             |subfolder   |
+   |subfolder2                           |specs       |
+   |specs subfolder2 dir spec            |subfolder2  |
+   |subsubfolder                         |subfolder   |
+   |specs subfolder subsubfolder dir spec|subsubfolder|

@@ -16,7 +16,7 @@ import java.time.Instant;
 public class Confluence {
 
     private static final String SCENARIO_SPACE_KEY_NAME = "confluence-space-key";
-    private static final String SCENARIO_SPACE_NAME = "Temporary Gauge Scenario Space";
+    private static final String SCENARIO_SPACE_NAME = "Space";
 
     public static String getScenarioSpaceKey() {
         return (String) ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME);
@@ -50,8 +50,7 @@ public class Confluence {
     }
 
     private void assertConsoleSuccessOutput(int totalPages) throws IOException {
-        Console console = new Console();
-        console.outputIs(
+        new Console().outputContains(
                 String.format("Success: published %d specs and directory pages to Confluence", totalPages));
     }
 

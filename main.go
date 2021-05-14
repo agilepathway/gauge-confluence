@@ -26,7 +26,7 @@ type handler struct {
 }
 
 func (h *handler) GenerateDocs(c context.Context, m *gauge_messages.SpecDetails) (*gauge_messages.Empty, error) {
-	publisher := confluence.NewPublisher()
+	publisher := confluence.NewPublisher(m)
 	publisher.Publish(providedSpecsPaths())
 
 	return &gauge_messages.Empty{}, nil

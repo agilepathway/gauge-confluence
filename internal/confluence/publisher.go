@@ -6,21 +6,36 @@ import (
 	"io/fs"
 	"path/filepath"
 
+	"github.com/agilepathway/gauge-confluence/gauge_messages"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/env"
+	"github.com/agilepathway/gauge-confluence/internal/errors"
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
+	"github.com/agilepathway/gauge-confluence/internal/git"
 )
 
 // Publisher publishes Gauge specifications to Confluence.
 type Publisher struct {
 	apiClient api.Client
 	space     space
+	specs     map[string]Spec // keyed by filepath
 }
 
 // NewPublisher instantiates a new Publisher.
-func NewPublisher() Publisher {
+func NewPublisher(m *gauge_messages.SpecDetails) Publisher {
 	spaceKey := env.GetRequired("CONFLUENCE_SPACE_KEY")
-	return Publisher{api.NewClient(), newSpace(spaceKey)}
+	return Publisher{api.NewClient(), newSpace(spaceKey), makeSpecsMap(m)}
+}
+
+func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
+	specs := make(map[string]Spec)
+
+	for _, s := range m.Details {
+		path := s.Spec.FileName
+		specs[path] = NewSpec(path, s.Spec, git.SpecGitURL(path, projectRoot))
+	}
+
+	return specs
 }
 
 // Publish publishes all Gauge specifications under the given paths to Confluence.
@@ -67,17 +82,24 @@ func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {
 }
 
 func (p *Publisher) publishIfDirOrSpec(path string, d fs.DirEntry, err error) error {
+	var e error
+
 	entry := gauge.NewDirEntry(path, d)
 
 	if entry.IsDirOrSpec() {
-		return p.publishDirOrSpec(entry)
+		e = p.publishDirOrSpec(entry)
 	}
 
-	return nil
+	if errors.IsNonfatal(e) {
+		fmt.Printf("Skipping file: %v", e)
+		return nil
+	}
+
+	return e
 }
 
 func (p *Publisher) publishDirOrSpec(entry gauge.DirEntry) error {
-	pg, err := newPage(entry, p.space.parentPageIDFor(entry.Path))
+	pg, err := newPage(entry, p.space.parentPageIDFor(entry.Path), p.specs[entry.Path])
 	if err != nil {
 		return err
 	}

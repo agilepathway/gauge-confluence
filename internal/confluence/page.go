@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
-	"github.com/agilepathway/gauge-confluence/internal/git"
 	"github.com/agilepathway/gauge-confluence/util"
 )
 
@@ -24,12 +23,12 @@ type page struct {
 	isDir    bool
 }
 
-func newPage(entry gauge.DirEntry, parentID string) (page, error) {
+func newPage(entry gauge.DirEntry, parentID string, spec Spec) (page, error) {
 	if entry.IsDir() {
 		return newDirPage(entry.Path, parentID), nil
 	}
 
-	return newSpecPage(entry, parentID)
+	return newSpecPage(parentID, spec)
 }
 
 // newDirPage initialises a new page encapsulating a directory.
@@ -38,9 +37,7 @@ func newDirPage(path, parentID string) page {
 }
 
 // newSpecPage initialises a new page encapsulating a Gauge specifiction.
-func newSpecPage(entry gauge.DirEntry, parentID string) (page, error) {
-	spec := NewSpec(entry.Path, git.SpecGitURL(entry.Path, projectRoot))
-
+func newSpecPage(parentID string, spec Spec) (page, error) {
 	err := spec.validate()
 	if err != nil {
 		return page{}, err

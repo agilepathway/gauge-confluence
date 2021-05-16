@@ -8,7 +8,6 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/gauge_messages"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
-	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
 	"github.com/agilepathway/gauge-confluence/internal/env"
 	"github.com/agilepathway/gauge-confluence/internal/errors"
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
@@ -25,7 +24,9 @@ type Publisher struct {
 // NewPublisher instantiates a new Publisher.
 func NewPublisher(m *gauge_messages.SpecDetails) Publisher {
 	spaceKey := env.GetRequired("CONFLUENCE_SPACE_KEY")
-	return Publisher{apiClient: api.NewClient(), space: newSpace(spaceKey), specs: makeSpecsMap(m)}
+	apiClient := api.NewClient()
+
+	return Publisher{apiClient: apiClient, space: newSpace(spaceKey, apiClient), specs: makeSpecsMap(m)}
 }
 
 func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
@@ -43,7 +44,7 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 
-	p.setupSpace()
+	p.space.setup()
 
 	isSpaceValid, msg := p.space.isValid()
 
@@ -64,68 +65,13 @@ func (p *Publisher) Publish(specPaths []string) {
 		return
 	}
 
-	err = p.updateLastPublished()
+	err = p.space.updateLastPublished()
 	if err != nil {
 		p.printFailureMessage(err)
 		return
 	}
 
 	fmt.Printf("Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
-}
-
-func (p *Publisher) setupSpace() {
-	h, ch, cr, err := p.apiClient.SpaceHomepage(p.space.key)
-	if err != nil {
-		p.printFailureMessage(err)
-		return
-	}
-
-	p.space.homepage.id = h
-
-	p.space.homepage.childless = ch == 0
-
-	p.space.homepage.created = time.NewTime(cr)
-
-	l, err := p.apiClient.LastPublished(p.space.homepage.id)
-	if err != nil {
-		p.printFailureMessage(err)
-		return
-	}
-
-	p.space.lastPublished = l
-
-	if l.Version == 0 || p.space.homepage.childless {
-		return
-	}
-
-	cqlTime := p.space.lastPublished.Time.FormatTimeForCQLSearch(p.cqlTimeOffset())
-
-	m, err := p.apiClient.IsSpaceModifiedSinceLastPublished(p.space.key, cqlTime)
-	if err != nil {
-		p.printFailureMessage(err)
-		return
-	}
-
-	p.space.modifiedSinceLastPublished = m
-}
-
-func (p *Publisher) cqlTimeOffset() int {
-	// nolint:gomnd
-	minOffset := -12 // the latest time zone on earth, 12 hours behind UTC
-	maxOffset := 14  // the earliest time zone on earth, 14 hours ahead of UTC
-
-	for o := minOffset; o <= maxOffset; o++ {
-		cqlTime := p.space.homepage.created.FormatTimeForCQLSearch(o)
-		pages := p.apiClient.PagesCreatedAt(cqlTime)
-
-		for _, pg := range pages {
-			if pg == p.space.homepage.id {
-				return o
-			}
-		}
-	}
-
-	panic("Could not calculate the time offset")
 }
 
 func (p *Publisher) printFailureMessage(s interface{}) {
@@ -179,8 +125,4 @@ func (p *Publisher) publishPage(pg page) (err error) {
 	p.space.publishedPages[pg.path] = pg
 
 	return nil
-}
-
-func (p *Publisher) updateLastPublished() error {
-	return p.apiClient.UpdateLastPublished(p.space.homepage.id, p.space.lastPublished.Version)
 }

@@ -9,9 +9,7 @@ import (
 
 type space struct {
 	key                        string
-	homepageID                 string
-	homepageNumberOfChildren   int
-	homepageCreated            time.Time
+	homepage                   homepage
 	publishedPages             map[string]page // Pages published by current invocation of the plugin, keyed by filepath
 	lastPublished              time.LastPublished
 	modifiedSinceLastPublished bool
@@ -28,7 +26,7 @@ func (s *space) isValid() (bool, string) {
 		return false, fmt.Sprintf("the space has been modified since the last publish. Space key: %s", s.key)
 	}
 
-	if s.homepageID == "" {
+	if s.homepage.id == "" {
 		return false, fmt.Sprintf("could not obtain a homepage ID for space: %s", s.key)
 	}
 
@@ -40,7 +38,7 @@ func (s *space) parentPageIDFor(path string) string {
 	parentPageID := s.publishedPages[parentDir].id
 
 	if parentPageID == "" {
-		return s.homepageID
+		return s.homepage.id
 	}
 
 	return parentPageID

@@ -80,13 +80,13 @@ func (p *Publisher) setupSpace() {
 		return
 	}
 
-	p.space.homepageID = h
+	p.space.homepage.id = h
 
-	p.space.homepageNumberOfChildren = ch
+	p.space.homepage.childless = ch == 0
 
-	p.space.homepageCreated = time.NewTime(cr)
+	p.space.homepage.created = time.NewTime(cr)
 
-	l, err := p.apiClient.LastPublished(p.space.homepageID)
+	l, err := p.apiClient.LastPublished(p.space.homepage.id)
 	if err != nil {
 		p.printFailureMessage(err)
 		return
@@ -94,7 +94,7 @@ func (p *Publisher) setupSpace() {
 
 	p.space.lastPublished = l
 
-	if l.Version == 0 || p.space.homepageNumberOfChildren == 0 {
+	if l.Version == 0 || p.space.homepage.childless {
 		return
 	}
 
@@ -115,11 +115,11 @@ func (p *Publisher) cqlTimeOffset() int {
 	maxOffset := 14  // the earliest time zone on earth, 14 hours ahead of UTC
 
 	for o := minOffset; o <= maxOffset; o++ {
-		cqlTime := p.space.homepageCreated.FormatTimeForCQLSearch(o)
+		cqlTime := p.space.homepage.created.FormatTimeForCQLSearch(o)
 		pages := p.apiClient.PagesCreatedAt(cqlTime)
 
 		for _, pg := range pages {
-			if pg == p.space.homepageID {
+			if pg == p.space.homepage.id {
 				return o
 			}
 		}
@@ -182,5 +182,5 @@ func (p *Publisher) publishPage(pg page) (err error) {
 }
 
 func (p *Publisher) updateLastPublished() error {
-	return p.apiClient.UpdateLastPublished(p.space.homepageID, p.space.lastPublished.Version)
+	return p.apiClient.UpdateLastPublished(p.space.homepage.id, p.space.lastPublished.Version)
 }

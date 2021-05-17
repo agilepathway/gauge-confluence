@@ -27,11 +27,10 @@ func NewTime(timeInConfluenceFormat string) Time {
 	return Time{t}
 }
 
-// FormatTimeForCQLSearch formats a time so it can be used in Confluence CQL searches.
+// CQLFormat formats a time so it can be used in Confluence CQL searches.
 //
 // See https://developer.atlassian.com/server/confluence/advanced-searching-using-cql/.
-//
-func (t Time) FormatTimeForCQLSearch(cqlOffset int) string {
+func (t Time) CQLFormat(cqlOffset int) string {
 	cqlTime := t.cqlTime(cqlOffset)
 	return fmt.Sprintf("%d-%02d-%02d %02d:%02d",
 		cqlTime.Year(), cqlTime.Month(), cqlTime.Day(), cqlTime.Hour(), cqlTime.Minute())

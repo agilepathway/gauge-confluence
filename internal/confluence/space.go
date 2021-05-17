@@ -15,6 +15,7 @@ type space struct {
 	lastPublished              time.LastPublished
 	modifiedSinceLastPublished bool
 	apiClient                  api.Client
+	cqlOffset                  int
 }
 
 // newSpace initialises a new space.
@@ -23,19 +24,13 @@ func newSpace(key string, apiClient api.Client) space {
 }
 
 func (s *space) setup() error {
-	h, ch, cr, err := s.apiClient.SpaceHomepage(s.key)
+	h, err := newHomepage(s.key, s.apiClient)
 	if err != nil {
 		return err
 	}
 
-	s.homepage.id = h
-
-	if s.homepage.id == "" {
-		return fmt.Errorf("could not obtain a homepage ID for space: %s", s.key)
-	}
-
-	s.homepage.childless = ch == 0
-	s.homepage.created = time.NewTime(cr)
+	s.homepage = h
+	s.cqlOffset = s.homepage.cqlTimeOffset()
 
 	lastPublishedString, version, err := s.apiClient.LastPublished(s.homepage.id, time.LastPublishedPropertyKey)
 	if err != nil {
@@ -48,7 +43,7 @@ func (s *space) setup() error {
 		return nil
 	}
 
-	cqlTime := s.lastPublished.Time.FormatTimeForCQLSearch(s.cqlTimeOffset())
+	cqlTime := s.lastPublished.Time.CQLFormat(s.cqlOffset)
 
 	m, err := s.apiClient.IsSpaceModifiedSinceLastPublished(s.key, cqlTime)
 	if err != nil {
@@ -62,25 +57,6 @@ func (s *space) setup() error {
 	}
 
 	return nil
-}
-
-func (s *space) cqlTimeOffset() int {
-	// nolint:gomnd
-	minOffset := -12 // the latest time zone on earth, 12 hours behind UTC
-	maxOffset := 14  // the earliest time zone on earth, 14 hours ahead of UTC
-
-	for o := minOffset; o <= maxOffset; o++ {
-		cqlTime := s.homepage.created.FormatTimeForCQLSearch(o)
-		pages := s.apiClient.PagesCreatedAt(cqlTime)
-
-		for _, pg := range pages {
-			if pg == s.homepage.id {
-				return o
-			}
-		}
-	}
-
-	panic("Could not calculate the time offset")
 }
 
 func (s *space) parentPageIDFor(path string) string {

@@ -37,14 +37,14 @@ func (s *space) setup() error {
 	s.homepage.childless = ch == 0
 	s.homepage.created = time.NewTime(cr)
 
-	l, err := s.apiClient.LastPublished(s.homepage.id)
+	lastPublishedString, version, err := s.apiClient.LastPublished(s.homepage.id, time.LastPublishedPropertyKey)
 	if err != nil {
 		return err
 	}
 
-	s.lastPublished = l
+	s.lastPublished = time.NewLastPublished(lastPublishedString, version)
 
-	if l.Version == 0 || s.homepage.childless {
+	if s.lastPublished.Version == 0 || s.homepage.childless {
 		return nil
 	}
 
@@ -105,6 +105,22 @@ func (s *space) checkForDuplicateTitle(given page) error {
 	return nil
 }
 
+// Value contains the LastPublished time
+type Value struct {
+	LastPublished string `json:"lastPublished"`
+}
+
+// UpdateLastPublished stores the time of publishing as a Confluence content property,
+// so that in the next run of the plugin it can check that the Confluence space has not
+// been edited manually in the meantime.
+//
+// The content property is attached to the Space homepage rather than to the Space itself, as
+// attaching the property to the Space requires admin permissions and we want to allow the
+// plugin to be run by non-admin users too.
 func (s *space) updateLastPublished() error {
-	return s.apiClient.UpdateLastPublished(s.homepage.id, s.lastPublished.Version)
+	value := Value{
+		LastPublished: time.Now().String(),
+	}
+
+	return s.apiClient.SetContentProperty(s.homepage.id, time.LastPublishedPropertyKey, value, s.lastPublished.Version+1)
 }

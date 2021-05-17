@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api/http"
-	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
 	"github.com/agilepathway/gauge-confluence/internal/env"
 	"github.com/agilepathway/gauge-confluence/util"
 
@@ -142,11 +141,6 @@ func baseURL() string {
 	return confluenceBaseURL
 }
 
-// Value contains the LastPublished time
-type Value struct {
-	LastPublished string `json:"lastPublished"`
-}
-
 // Version represents a Confluence version
 type Version struct {
 	Number    int  `json:"number"`
@@ -155,25 +149,17 @@ type Version struct {
 
 // Data represents a last published request
 type Data struct {
-	Value   Value   `json:"value"`
-	Version Version `json:"version"`
+	Value   interface{} `json:"value"`
+	Version Version     `json:"version"`
 }
 
-// UpdateLastPublished stores the time of publishing as a Confluence content property,
-// so that in the next run of the plugin it can check that the Confluence space has not
-// been edited manually in the meantime.
-//
-// The content property is attached to the Space homepage rather than to the Space itself, as
-// attaching the property to the Space requires admin permissions and we want to allow the
-// plugin to be run by non-admin users too.
-func (c *Client) UpdateLastPublished(homepageID string, currentVersion int) error {
-	path := fmt.Sprintf("content/%s/property/%s", homepageID, time.LastPublishedPropertyKey)
+// SetContentProperty sets a content property with the provided key for the page with the provided ID.
+func (c *Client) SetContentProperty(pageID string, propertyKey string, value interface{}, version int) error {
+	path := fmt.Sprintf("content/%s/property/%s", pageID, propertyKey)
 	requestBody := Data{
-		Value{
-			LastPublished: time.Now().String(),
-		},
+		value,
 		Version{
-			Number:    currentVersion + 1,
+			Number:    version,
 			MinorEdit: true,
 		},
 	}
@@ -182,8 +168,8 @@ func (c *Client) UpdateLastPublished(homepageID string, currentVersion int) erro
 }
 
 // LastPublished returns the last time Confluence specs were published for the space with the given homepageID
-func (c *Client) LastPublished(spaceHomepageID string) (time.LastPublished, error) {
-	path := fmt.Sprintf("content/%s/property/%s", spaceHomepageID, time.LastPublishedPropertyKey)
+func (c *Client) LastPublished(spaceHomepageID, propertyKey string) (string, int, error) {
+	path := fmt.Sprintf("content/%s/property/%s", spaceHomepageID, propertyKey)
 
 	var resp struct {
 		Value struct {
@@ -197,8 +183,8 @@ func (c *Client) LastPublished(spaceHomepageID string) (time.LastPublished, erro
 	err := c.httpClient.GetJSON(path, &resp)
 
 	if err != nil && !strings.Contains(err.Error(), "404") {
-		return time.LastPublished{}, err
+		return "", 0, err
 	}
 
-	return time.NewLastPublished(resp.Value.LastPublished, resp.Version.Number), nil
+	return resp.Value.LastPublished, resp.Version.Number, nil
 }

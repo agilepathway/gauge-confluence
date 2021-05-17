@@ -22,38 +22,46 @@ func newSpace(key string, apiClient api.Client) space {
 	return space{key: key, publishedPages: make(map[string]page), apiClient: apiClient}
 }
 
-func (s *space) setup() {
+func (s *space) setup() error {
 	h, ch, cr, err := s.apiClient.SpaceHomepage(s.key)
 	if err != nil {
-		s.printFailureMessage(err)
-		return
+		return err
 	}
 
 	s.homepage.id = h
+
+	if s.homepage.id == "" {
+		return fmt.Errorf("could not obtain a homepage ID for space: %s", s.key)
+	}
+
 	s.homepage.childless = ch == 0
 	s.homepage.created = time.NewTime(cr)
 
 	l, err := s.apiClient.LastPublished(s.homepage.id)
 	if err != nil {
-		s.printFailureMessage(err)
-		return
+		return err
 	}
 
 	s.lastPublished = l
 
 	if l.Version == 0 || s.homepage.childless {
-		return
+		return nil
 	}
 
 	cqlTime := s.lastPublished.Time.FormatTimeForCQLSearch(s.cqlTimeOffset())
 
 	m, err := s.apiClient.IsSpaceModifiedSinceLastPublished(s.key, cqlTime)
 	if err != nil {
-		s.printFailureMessage(err)
-		return
+		return err
 	}
 
 	s.modifiedSinceLastPublished = m
+
+	if s.modifiedSinceLastPublished {
+		return fmt.Errorf("the space has been modified since the last publish. Space key: %s", s.key)
+	}
+
+	return nil
 }
 
 func (s *space) cqlTimeOffset() int {
@@ -73,19 +81,6 @@ func (s *space) cqlTimeOffset() int {
 	}
 
 	panic("Could not calculate the time offset")
-}
-
-func (s *space) isValid() (bool, string) {
-	if s.modifiedSinceLastPublished {
-		fmt.Println()
-		return false, fmt.Sprintf("the space has been modified since the last publish. Space key: %s", s.key)
-	}
-
-	if s.homepage.id == "" {
-		return false, fmt.Sprintf("could not obtain a homepage ID for space: %s", s.key)
-	}
-
-	return true, ""
 }
 
 func (s *space) parentPageIDFor(path string) string {
@@ -112,8 +107,4 @@ func (s *space) checkForDuplicateTitle(given page) error {
 
 func (s *space) updateLastPublished() error {
 	return s.apiClient.UpdateLastPublished(s.homepage.id, s.lastPublished.Version)
-}
-
-func (s *space) printFailureMessage(i interface{}) {
-	fmt.Printf("Failed: %v", i)
 }

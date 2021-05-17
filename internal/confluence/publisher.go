@@ -44,12 +44,9 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 
-	p.space.setup()
-
-	isSpaceValid, msg := p.space.isValid()
-
-	if !isSpaceValid {
-		p.printFailureMessage(msg)
+	err = p.space.setup()
+	if err != nil {
+		p.printFailureMessage(err)
 		return
 	}
 
@@ -66,6 +63,7 @@ func (p *Publisher) Publish(specPaths []string) {
 	}
 
 	err = p.space.updateLastPublished()
+
 	if err != nil {
 		p.printFailureMessage(err)
 		return

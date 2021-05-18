@@ -5,6 +5,7 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
 type homepage struct {
@@ -28,6 +29,8 @@ func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 }
 
 func (h *homepage) cqlTimeOffset() int {
+	logger.Debugf(true, "Confluence homepage ID is %s for space %s", h.spaceKey, h.id)
+	logger.Debugf(true, "Homepage created at: %v (UTC)", h.created)
 	// nolint:gomnd
 	minOffset := -12 // the latest time zone on earth, 12 hours behind UTC
 	maxOffset := 14  // the earliest time zone on earth, 14 hours ahead of UTC
@@ -38,6 +41,7 @@ func (h *homepage) cqlTimeOffset() int {
 
 		for _, pg := range pages {
 			if pg == h.id {
+				logger.Debugf(true, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
 				return o
 			}
 		}

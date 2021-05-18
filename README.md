@@ -84,7 +84,7 @@ If you find a problem with a particular version of Confluence, please
 
 ### Plugin setup
 
-There are four variables to configure, as either:
+There are four mandatory variables to configure, as either:
 
 1. environment variables
 
@@ -102,12 +102,16 @@ The four variables to configure are:
 
 `CONFLUENCE_SPACE_KEY`
 
-Use a dedicated [Confluence Space](https://support.atlassian.com/confluence-cloud/docs/use-spaces-to-organize-your-work/)
+Use a dedicated, empty [Confluence Space](https://support.atlassian.com/confluence-cloud/docs/use-spaces-to-organize-your-work/)
 that will contain just the Gauge specifications and nothing else.  
 
 NB You can use [Confluence's include macro](https://confluence.atlassian.com/doc/include-page-macro-139514.html)
 to include the [page tree](https://confluence.atlassian.com/conf59/page-tree-macro-792499177.html) of Gauge Specs
 (that gets created by this plugin) in as many of your existing spaces as you like.
+
+There is also an optional `GAUGE_LOG_LEVEL` variable which can be set to `debug` or `info` (default is`info`).
+It controls the logging level both for the log files which are generated, _and_ what is logged to the console.
+NB the command line flag `--log-level` does not have any effect on the logging for this plugin.
 
 
 ### Running the plugin (i.e. publishing specs to Confluence)

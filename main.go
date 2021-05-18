@@ -10,16 +10,20 @@ import (
 	"github.com/agilepathway/gauge-confluence/gauge_messages"
 	"github.com/agilepathway/gauge-confluence/internal/confluence"
 	"github.com/agilepathway/gauge-confluence/internal/env"
+	"github.com/agilepathway/gauge-confluence/internal/logger"
 	"github.com/agilepathway/gauge-confluence/util"
 	"google.golang.org/grpc"
 )
 
 const (
 	gaugeSpecsDir = "GAUGE_SPEC_DIRS"
+	gaugeLogLevel = "GAUGE_LOG_LEVEL"
 	fileSeparator = "||"
 )
 
-var projectRoot = util.GetProjectRoot() //nolint:gochecknoglobals
+var (
+	projectRoot = util.GetProjectRoot() //nolint:gochecknoglobals
+)
 
 type handler struct {
 	server *grpc.Server
@@ -42,6 +46,7 @@ func (h *handler) stopServer() {
 }
 
 func main() {
+	logger.Initialize(loglevel())
 	checkRequiredConfigVars()
 
 	err := os.Chdir(projectRoot)
@@ -75,4 +80,14 @@ func checkRequiredConfigVars() {
 // https://docs.gauge.org/execution.html#multiple-arguments-passed-to-gauge-run
 func providedSpecsPaths() []string {
 	return strings.Split(os.Getenv(gaugeSpecsDir), fileSeparator)
+}
+
+// loglevel returns the log level if set by the plugin user, or an empty string if not.
+// The plugin user can set the log level via the `GAUGE_LOG_LEVEL` environment variable.
+// (Gauge does not currently pass on the command line `-l, --log-level` flag to plugins,
+// so the plugin does not currently respect the command line flag but does respect the
+// above environment variable).
+// If the log level is not set by the user then the level defaults to info.
+func loglevel() string {
+	return os.Getenv(gaugeLogLevel)
 }

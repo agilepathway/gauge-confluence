@@ -30,7 +30,11 @@ func (s *space) setup() error {
 	}
 
 	s.homepage = h
-	s.cqlOffset = s.homepage.cqlTimeOffset()
+	s.cqlOffset, err = s.homepage.cqlTimeOffset()
+
+	if err != nil {
+		return err
+	}
 
 	lastPublishedString, version, err := s.apiClient.LastPublished(s.homepage.id, time.LastPublishedPropertyKey)
 	if err != nil {

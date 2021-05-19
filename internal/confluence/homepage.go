@@ -5,6 +5,7 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+	"github.com/agilepathway/gauge-confluence/internal/errors"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
@@ -28,24 +29,30 @@ func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 	return h, err
 }
 
-func (h *homepage) cqlTimeOffset() int {
+func (h *homepage) cqlTimeOffset() (int, error) {
 	logger.Debugf(true, "Confluence homepage ID is %s for space %s", h.spaceKey, h.id)
 	logger.Debugf(true, "Homepage created at: %v (UTC)", h.created)
 	// nolint:gomnd
 	minOffset := -12 // the latest time zone on earth, 12 hours behind UTC
 	maxOffset := 14  // the earliest time zone on earth, 14 hours ahead of UTC
 
-	for o := minOffset; o <= maxOffset; o++ {
-		cqlTime := h.created.CQLFormat(o)
-		pages := h.apiClient.PagesCreatedAt(cqlTime)
+	var offset int
 
-		for _, pg := range pages {
-			if pg == h.id {
-				logger.Debugf(true, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
-				return o
+	err := errors.Retry(5, 1000, func() (err error) { //nolint:gomnd
+		for o := minOffset; o <= maxOffset; o++ {
+			cqlTime := h.created.CQLFormat(o)
+			pages := h.apiClient.PagesCreatedAt(cqlTime)
+
+			for _, pg := range pages {
+				if pg == h.id {
+					logger.Debugf(true, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
+					offset = o
+					return
+				}
 			}
 		}
-	}
+		return fmt.Errorf("could not calculate time offset for Confluence CQL searches")
+	})
 
-	panic("Could not calculate the time offset")
+	return offset, err
 }

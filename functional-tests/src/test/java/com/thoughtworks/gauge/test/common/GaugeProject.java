@@ -63,10 +63,10 @@ public abstract class GaugeProject {
 
     public static GaugeProject createProject(String language, String projName) throws IOException {
         switch (language.toLowerCase()) {
-        case "java":
-            return new JavaProject(projName);
-        default:
-            return new UnknownProject(language, projName);
+            case "java":
+                return new JavaProject(projName);
+            default:
+                return new UnknownProject(language, projName);
         }
     }
 
@@ -238,7 +238,8 @@ public abstract class GaugeProject {
         ProcessBuilder processBuilder = new ProcessBuilder(command).directory(projectDir);
         String gauge_project_root = System.getenv("GAUGE_PROJECT_ROOT");
         String folderName = (String) ScenarioDataStore.get("log_proj_name");
-        String logFolder = Util.combinePath(new File("./testLogs").getAbsolutePath(), folderName);
+        String logFolder = Util.combinePath(new File("logs/").getAbsolutePath(), folderName,
+                Confluence.getScenarioSpaceKey());
         String localNugetPath = Paths.get(gauge_project_root, "resources", "LocalNuget").toAbsolutePath().toString();
 
         filterParentProcessGaugeEnvs(processBuilder);

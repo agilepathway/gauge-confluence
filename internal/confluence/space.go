@@ -15,7 +15,7 @@ type space struct {
 	lastPublished              time.LastPublished
 	modifiedSinceLastPublished bool
 	apiClient                  api.Client
-	cqlOffset                  int
+	cqlOffset                  int // Number of hours that CQL queries are to be offset (against UTC) by
 }
 
 // newSpace initialises a new space.

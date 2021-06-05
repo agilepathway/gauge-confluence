@@ -5,7 +5,7 @@ This Gauge Confluence plugin requires that the specs for a given Gauge project a
 their own dedicated [Confluence Space][1], with no manual edits or additions in Confluence.
 Having the Space only contain published Gauge specs ensures that there is no danger of the plugin
 inadvertently overwriting or deleting manually created Confluence pages.
-NB The specs can still be appear alongside your existing manually created Confluence documentation
+NB The specs can still appear alongside your existing manually created Confluence documentation
 in other spaces, by using Confluence's [Include Page macro][2].  This macro
 [allows you to include the full page tree of specs in as many other spaces as you like][3].
 

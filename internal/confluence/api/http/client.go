@@ -2,6 +2,7 @@
 package http
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -34,12 +35,17 @@ func (c *Client) GetJSON(path string, v interface{}) error {
 		return err
 	}
 
-	err = json.Unmarshal(responseBody, &v)
+	return json.Unmarshal(responseBody, &v)
+}
+
+// PutJSON sends an HTTP PUT request with the given URL path and request body
+func (c *Client) PutJSON(path string, requestBody interface{}) error {
+	b, err := json.Marshal(requestBody)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	return c.httpPut(path, b)
 }
 
 func (c *Client) basicAuth() string {
@@ -71,4 +77,31 @@ func (c *Client) httpGet(path string) ([]byte, error) {
 	}
 
 	return body, err
+}
+
+func (c *Client) httpPut(path string, requestBody []byte) error {
+	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
+	req, _ := http.NewRequest("PUT", url, bytes.NewReader(requestBody))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Add("Authorization", "Basic "+c.basicAuth())
+
+	response, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if response.Body != nil {
+		defer response.Body.Close() //nolint: errcheck
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode > 299 { //nolint: gomnd
+		err = fmt.Errorf("HTTP response error: %d %s", response.StatusCode, responseBody)
+	}
+
+	return err
 }

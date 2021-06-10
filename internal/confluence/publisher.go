@@ -24,7 +24,9 @@ type Publisher struct {
 // NewPublisher instantiates a new Publisher.
 func NewPublisher(m *gauge_messages.SpecDetails) Publisher {
 	spaceKey := env.GetRequired("CONFLUENCE_SPACE_KEY")
-	return Publisher{api.NewClient(), newSpace(spaceKey), makeSpecsMap(m)}
+	apiClient := api.NewClient()
+
+	return Publisher{apiClient: apiClient, space: newSpace(spaceKey, apiClient), specs: makeSpecsMap(m)}
 }
 
 func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
@@ -42,9 +44,9 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 
-	p.setupSpace()
-
-	if !p.space.isValid() {
+	err = p.space.setup()
+	if err != nil {
+		p.printFailureMessage(err)
 		return
 	}
 
@@ -60,21 +62,18 @@ func (p *Publisher) Publish(specPaths []string) {
 		return
 	}
 
-	fmt.Printf("Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
-}
+	err = p.space.updateLastPublished()
 
-func (p *Publisher) setupSpace() {
-	spaceHomepageID, err := p.apiClient.SpaceHomepageID(p.space.key)
 	if err != nil {
 		p.printFailureMessage(err)
 		return
 	}
 
-	p.space.homepageID = spaceHomepageID
+	fmt.Printf("Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
 }
 
-func (p *Publisher) printFailureMessage(err error) {
-	fmt.Printf("Failed: %v", err)
+func (p *Publisher) printFailureMessage(s interface{}) {
+	fmt.Printf("Failed: %v", s)
 }
 
 func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {

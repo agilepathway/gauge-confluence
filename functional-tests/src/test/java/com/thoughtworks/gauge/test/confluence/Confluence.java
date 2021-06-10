@@ -12,6 +12,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.util.concurrent.TimeUnit;
 
 public class Confluence {
 
@@ -52,6 +54,18 @@ public class Confluence {
     private void assertConsoleSuccessOutput(int totalPages) throws IOException {
         new Console().outputContains(
                 String.format("Success: published %d specs and directory pages to Confluence", totalPages));
+    }
+
+    @Step("Manually add a page to the Confluence space")
+    public void manuallyAddPageToConfluenceSpace() throws InterruptedException {
+        // the page needs to be added at a later minute than when the last publish ran
+        waitForNextMinuteToStart();
+        ConfluenceClient.createPage(getScenarioSpaceKey());
+        TimeUnit.SECONDS.sleep(2); // give Confluence time to process the added page
+    }
+
+    private void waitForNextMinuteToStart() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(60 - LocalTime.now().getSecond());
     }
 
 }

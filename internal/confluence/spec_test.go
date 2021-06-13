@@ -65,9 +65,7 @@ var specTests = []struct { //nolint:gochecknoglobals
 //nolint:errcheck,gosec
 func TestAddGitLinkAfterSpecHeading(t *testing.T) {
 	for _, tt := range specTests {
-		spec := Spec{
-			path:   specAbsolutePath,
-			gitURL: specGitURL}
+		spec := Spec{path: specAbsolutePath, gitURL: specGitURL}
 		expected := fmt.Sprintf(tt.expected, specGitURL)
 		actual := spec.addGitLinkAfterSpecHeading(tt.input)
 

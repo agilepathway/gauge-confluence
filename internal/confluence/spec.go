@@ -14,8 +14,8 @@ import (
 type Spec struct {
 	path      string // absolute path to the specification file, including the filename
 	protoSpec *gauge.ProtoSpec
-	markdown  string // the spec contents
-	gitURL    string // the URL for the spec on e.g. GitHub, GitLab, Bitbucket
+	markdown  markdown // the spec contents
+	gitURL    string   // the URL for the spec on e.g. GitHub, GitLab, Bitbucket
 }
 
 // NewSpec returns a new Spec for the spec at the given absolute path.
@@ -36,7 +36,7 @@ func (s *Spec) heading() string {
 }
 
 func (s *Spec) confluenceFmt() string {
-	return markdownToConfluence(s.markdown)
+	return s.markdown.confluenceFmt()
 }
 
 func (s *Spec) addGitLinkAfterSpecHeading(spec string) string {
@@ -55,9 +55,9 @@ func (s *Spec) gitLinkInConfluenceFormat() string {
 	return fmt.Sprintf("[View or edit this spec in Git|%s]", s.gitURL)
 }
 
-func readMarkdown(absolutePath string) string {
+func readMarkdown(absolutePath string) markdown {
 	specBytes, err := ioutil.ReadFile(absolutePath) //nolint:gosec
 	util.Fatal(fmt.Sprintf("Error while reading %s file", absolutePath), err)
 
-	return string(specBytes)
+	return markdown(specBytes)
 }

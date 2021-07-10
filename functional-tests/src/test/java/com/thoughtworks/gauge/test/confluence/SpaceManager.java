@@ -2,6 +2,9 @@ package com.thoughtworks.gauge.test.confluence;
 
 import com.thoughtworks.gauge.Step;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class SpaceManager {
 
     @Step("Delete space")
@@ -14,6 +17,21 @@ public class SpaceManager {
     public void createSpace() {
         ConfluenceClient.createSpace(spaceKey(), spaceKey());
         System.out.println("Deleted space: " + spaceKey());
+    }
+
+    @Step("Delete all spaces named <space name>")
+    public void deleteAllSpacesNamed(String spaceName) {
+        JSONArray spaces = ConfluenceClient.getAllSpaces();
+        for (int i = 0; i < spaces.length(); i++) {
+            deleteSpaceIfNamed(spaces.getJSONObject(i), spaceName);
+        }
+    }
+
+    private void deleteSpaceIfNamed(JSONObject sp, String spaceName) {
+        if (spaceName.equals(sp.get("name"))) {
+            ConfluenceClient.deleteSpace((String) sp.get("key"));
+            System.out.println(String.format("Deleted space with key %s and name %s", sp.get("key"), sp.get("name")));
+        }
     }
 
     private String spaceKey() {

@@ -8,3 +8,5 @@ These specs are just helper functions - they do not document or exercise the Gau
 ## Create the space
 * Create space
 
+## Delete all spaces with given name
+* Delete all spaces named "Change me to the name of the space you want to delete"

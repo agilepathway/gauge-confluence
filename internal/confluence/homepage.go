@@ -19,6 +19,9 @@ type homepage struct {
 
 func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 	id, children, created, err := a.SpaceHomepage(spaceKey)
+	logger.Debugf(true, "Space homepage id: %s", id)
+	logger.Debugf(true, "Space homepage number of children: %d", children)
+	logger.Debugf(true, "Space homepage created: %v", created)
 
 	h := homepage{id: id, created: time.NewTime(created), childless: children == 0, spaceKey: spaceKey, apiClient: a}
 

@@ -6,6 +6,7 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
 type space struct {
@@ -40,6 +41,8 @@ func (s *space) setup() error {
 	if err != nil {
 		return err
 	}
+
+	logger.Debugf(true, "Last published: %s", lastPublishedString)
 
 	s.lastPublished = time.NewLastPublished(lastPublishedString, version)
 

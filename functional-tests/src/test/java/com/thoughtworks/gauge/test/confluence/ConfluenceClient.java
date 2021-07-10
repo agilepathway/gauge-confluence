@@ -22,12 +22,19 @@ public class ConfluenceClient {
         sendConfluenceRequest(deleteSpaceRequest(spaceKey));
     }
 
+    public static JSONArray getAllSpaces() {
+        return getResults(getAllSpacesRequest());
+    }
+
     public static JSONArray getAllPages(String spaceKey) {
-        HttpResponse<String> rawResponse = sendConfluenceRequest(getAllPagesRequest(spaceKey));
+        return getResults(getAllPagesRequest(spaceKey));
+    }
+
+    public static JSONArray getResults(HttpRequest request) {
+        HttpResponse<String> rawResponse = sendConfluenceRequest(request);
         JSONObject jsonResponse = new JSONObject(rawResponse.body());
         return (JSONArray) jsonResponse.get("results");
     }
-
     public static void createPage(String spaceKey) {
         sendConfluenceRequest(createPageRequest(spaceKey));
     }
@@ -65,6 +72,12 @@ public class ConfluenceClient {
         HttpRequest.Builder builder = baseConfluenceRequest();
         String getAllPagesURL = String.format("%1$s?spaceKey=%2$s&expand=ancestors", baseContentAPIURL(), spaceKey);
         builder.uri(URI.create(getAllPagesURL));
+        return builder.build();
+    }
+
+    private static HttpRequest getAllSpacesRequest() {
+        HttpRequest.Builder builder = baseConfluenceRequest();
+        builder.uri(URI.create(baseSpaceAPIURL()));
         return builder.build();
     }
 

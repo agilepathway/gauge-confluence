@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 public class Confluence {
 
@@ -26,17 +27,13 @@ public class Confluence {
 
     @BeforeScenario
     public void BeforeScenario() {
-        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, currentTimeInMilliseconds());
+        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
         ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
     }
 
     @AfterScenario
     public void AfterScenario() {
         ConfluenceClient.deleteSpace(getScenarioSpaceKey());
-    }
-
-    public String currentTimeInMilliseconds() {
-        return String.valueOf(Instant.now().toEpochMilli());
     }
 
     @Step("Published pages are: <table>")
@@ -66,6 +63,10 @@ public class Confluence {
 
     private void waitForNextMinuteToStart() throws InterruptedException {
         TimeUnit.SECONDS.sleep(60 - LocalTime.now().getSecond());
+    }
+
+    private String generateUniqueSpaceKeyName() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
 }

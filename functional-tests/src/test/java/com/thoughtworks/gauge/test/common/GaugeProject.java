@@ -40,6 +40,8 @@ public abstract class GaugeProject {
     private static String executableName = "gauge";
     private static String gitExecutableName = "git";
     private static String specsDirName = "specs";
+    private static String conceptsDirName = "concepts";
+    private ArrayList<Concept> concepts = new ArrayList<>();
     private File projectDir;
     private String language;
     private ArrayList<Specification> specifications = new ArrayList<>();
@@ -68,6 +70,10 @@ public abstract class GaugeProject {
             default:
                 return new UnknownProject(language, projName);
         }
+    }
+
+    public void addConcepts(Concept... newConcepts) {
+        Collections.addAll(concepts, newConcepts);
     }
 
     public boolean initialize(boolean remoteTemplate) throws Exception {
@@ -185,6 +191,37 @@ public abstract class GaugeProject {
             }
         }
         return null;
+    }
+
+    public Concept createConcept(String conceptsDirName, String name, Table steps) throws Exception {
+        File conceptsDir = conceptsDir(conceptsDirName);
+        if (!conceptsDir.exists()) {
+            conceptsDir.mkdir();
+        }
+        File conceptFile = new File(conceptsDir, "concept_" + System.nanoTime() + ".cpt");
+        if (conceptFile.exists()) {
+            throw new RuntimeException("Failed to create concept: " + name + "." + conceptFile.getAbsolutePath() + " : File already exists");
+        }
+        Concept concept = new Concept(name);
+        if (steps != null) {
+            List<String> columnNames = steps.getColumnNames();
+            for (TableRow row : steps.getTableRows()) {
+                concept.addItem(row.getCell(columnNames.get(0)), row.getCell("Type"));
+                if (columnNames.size() == 2) {
+                    implementStep(new StepImpl(row.getCell(columnNames.get(0)), row.getCell(columnNames.get(1)), false, false, "", ""));
+                }
+            }
+        }
+        concept.saveAs(conceptFile);
+        concepts.add(concept);
+        return concept;
+    }
+
+    public File conceptsDir(String conceptsDirName) {
+        if (StringUtils.isEmpty(conceptsDirName)) {
+            return new File(projectDir, Util.combinePath(GaugeProject.specsDirName, GaugeProject.conceptsDirName));
+        }
+        return new File(projectDir, conceptsDirName);
     }
 
     public boolean executeSpecFolder(String specFolder) throws Exception {

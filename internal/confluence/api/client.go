@@ -57,6 +57,11 @@ func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID
 	return responseContent.ID, nil
 }
 
+// DeletePage deletes a page from Confluence
+func (c *Client) DeletePage(pageID string) (err error) {
+	return c.httpClient.DeleteContent(pageID)
+}
+
 // SpaceHomepage provides the page ID, no. of children and created time for the given Space's homepage.
 func (c *Client) SpaceHomepage(spaceKey string) (string, int, string, error) {
 	path := fmt.Sprintf("space?spaceKey=%s&expand=homepage.children.page,homepage.history", spaceKey)

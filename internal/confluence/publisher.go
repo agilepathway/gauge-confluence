@@ -17,7 +17,7 @@ import (
 // Publisher publishes Gauge specifications to Confluence.
 type Publisher struct {
 	apiClient api.Client
-	space     space
+	space     space           // Represents the Confluence Space that is published to
 	specs     map[string]Spec // keyed by filepath
 }
 
@@ -77,7 +77,12 @@ func (p *Publisher) printFailureMessage(s interface{}) {
 }
 
 func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {
-	return filepath.WalkDir(baseSpecPath, p.publishIfDirOrSpec)
+	err = filepath.WalkDir(baseSpecPath, p.publishIfDirOrSpec)
+	if err != nil {
+		return err
+	}
+
+	return p.space.deleteEmptyDirPages()
 }
 
 func (p *Publisher) publishIfDirOrSpec(path string, d fs.DirEntry, err error) error {

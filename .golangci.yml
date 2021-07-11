@@ -10,6 +10,13 @@ issues:
   # Default value for this option is true.
   exclude-use-default: false
 
+
+  exclude-rules:
+    # As per https://github.com/golangci/golangci-lint/issues/207#issuecomment-534771981
+    - linters:
+        - lll
+      source: "^// http"
+
 linters:
   # enable-all is deprecated, so enable linters individually
   enable:

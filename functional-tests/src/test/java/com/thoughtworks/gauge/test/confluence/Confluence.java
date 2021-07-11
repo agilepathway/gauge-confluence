@@ -11,7 +11,6 @@ import com.thoughtworks.gauge.test.implementation.Console;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 import java.util.UUID;

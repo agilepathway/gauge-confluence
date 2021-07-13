@@ -36,7 +36,7 @@ func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 // for the Confluence instance that specs are being published to.  We calculate this on the fly each
 // time because it is not easy at all for the user of the plugin to know the time offset for CQL
 // queries required by their Confluence instance - see:
-// nolint[:lll] https://community.atlassian.com/t5/Confluence-questions/How-do-I-pass-a-UTC-time-as-the-value-of-lastModified-in-a-REST/qaq-p/1557903
+// https://community.atlassian.com/t5/Confluence-questions/How-do-I-pass-a-UTC-time-as-the-value-of-lastModified-in-a-REST/qaq-p/1557903
 func (h *homepage) cqlTimeOffset() (int, error) {
 	logger.Debugf(true, "Confluence homepage ID is %s for space %s", h.spaceKey, h.id)
 	logger.Debugf(true, "Homepage created at: %v (UTC)", h.created)

@@ -48,6 +48,13 @@ func (c *Client) PutJSON(path string, requestBody interface{}) error {
 	return c.httpPut(path, b)
 }
 
+// DeleteContent deletes the Confluence content with the given contentID
+// See e.g. https://developer.atlassian.com/server/confluence/confluence-rest-api-examples/#delete-a-page
+func (c *Client) DeleteContent(contentID string) error {
+	path := fmt.Sprintf("content/%s", contentID)
+	return c.httpDelete(path)
+}
+
 func (c *Client) basicAuth() string {
 	auth := c.username + ":" + c.token
 	return base64.StdEncoding.EncodeToString([]byte(auth))
@@ -100,6 +107,32 @@ func (c *Client) httpPut(path string, requestBody []byte) error {
 	}
 
 	if response.StatusCode > 299 { //nolint: gomnd
+		err = fmt.Errorf("HTTP response error: %d %s", response.StatusCode, responseBody)
+	}
+
+	return err
+}
+
+func (c *Client) httpDelete(path string) error {
+	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
+	req, _ := http.NewRequest("DELETE", url, nil)
+	req.Header.Add("Authorization", "Basic "+c.basicAuth())
+	response, err := c.httpClient.Do(req)
+
+	if err != nil {
+		return err
+	}
+
+	if response.Body != nil {
+		defer response.Body.Close() //nolint: errcheck
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode != 204 { //nolint: gomnd
 		err = fmt.Errorf("HTTP response error: %d %s", response.StatusCode, responseBody)
 	}
 

@@ -93,7 +93,7 @@ type Value struct {
 	LastPublished string `json:"lastPublished"`
 }
 
-// UpdateLastPublished stores the time of publishing as a Confluence content property,
+// updateLastPublished stores the time of publishing as a Confluence content property,
 // so that in the next run of the plugin it can check that the Confluence space has not
 // been edited manually in the meantime.
 //
@@ -106,4 +106,41 @@ func (s *space) updateLastPublished() error {
 	}
 
 	return s.apiClient.SetContentProperty(s.homepage.id, time.LastPublishedPropertyKey, value, s.lastPublished.Version+1)
+}
+
+// deleteEmptyDirPages deletes any pages that the plugin has published to in this run
+// that are empty directories
+func (s *space) deleteEmptyDirPages() (err error) {
+	for key, page := range s.publishedPages {
+		if s.isEmptyDir(page) {
+			err = s.apiClient.DeletePage(page.id)
+			if err != nil {
+				return err
+			}
+
+			delete(s.publishedPages, key)
+		}
+	}
+
+	return nil
+}
+
+func (s *space) isEmptyDir(p page) bool {
+	return p.isDir && s.isChildless(p)
+}
+
+func (s *space) isChildless(p page) bool {
+	return len(s.children(p)) == 0
+}
+
+func (s *space) children(page page) []string {
+	var children []string
+
+	for _, p := range s.publishedPages {
+		if page.id == p.parentID {
+			children = append(children, p.id)
+		}
+	}
+
+	return children
 }

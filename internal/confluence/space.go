@@ -108,6 +108,10 @@ func (s *space) updateLastPublished() error {
 	return s.apiClient.SetContentProperty(s.homepage.id, time.LastPublishedPropertyKey, value, s.lastPublished.Version+1)
 }
 
+func (s *space) deleteAllPagesExceptHomepage() (err error) {
+	return s.apiClient.DeleteAllPagesInSpaceExceptHomepage(s.key, s.homepage.id)
+}
+
 // deleteEmptyDirPages deletes any pages that the plugin has published to in this run
 // that are empty directories
 func (s *space) deleteEmptyDirPages() (err error) {

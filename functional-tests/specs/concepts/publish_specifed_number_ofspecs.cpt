@@ -1,0 +1,7 @@
+# Publish <number> specs to Confluence
+
+* Initialize an empty Gauge project
+
+* Create <number> specs
+
+* Publish Confluence Documentation for the current project

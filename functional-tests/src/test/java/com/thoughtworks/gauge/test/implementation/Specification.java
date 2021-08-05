@@ -1,5 +1,7 @@
 package com.thoughtworks.gauge.test.implementation;
 
+import java.util.Arrays;
+
 import com.thoughtworks.gauge.Step;
 import com.thoughtworks.gauge.Table;
 import com.thoughtworks.gauge.TableRow;
@@ -18,6 +20,16 @@ public class Specification {
                 createSpec(row.getCell("heading"), row.getCell("path"), "spec" + i);
             }
         }
+    }
+
+    @Step("Create <number> specs")
+    public void createSpecifiedNumberOfSpecs(int numberOfSpecs) throws Exception {
+        Table t = new Table(Arrays.asList("heading"));
+        for (int i = 0; i < numberOfSpecs; i++) {
+            t.addRow(Arrays.asList(Integer.toString(i)));
+        }
+
+        createSpecs(t);
     }
 
     public void createSpec(String specName, String subFolder, String filename) throws Exception {

@@ -57,6 +57,37 @@ func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID
 	return responseContent.ID, nil
 }
 
+// DeleteAllPagesInSpaceExceptHomepage deletes all the pages in the given Space,
+// apart from the Space home page
+func (c *Client) DeleteAllPagesInSpaceExceptHomepage(spaceKey string, homepageID string) (err error) {
+	pageLimit := 10
+	res, err := c.goconfluenceClient.GetContent(goconfluence.ContentQuery{
+		SpaceKey: spaceKey,
+		Limit:    pageLimit,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	for _, page := range res.Results {
+		if page.ID != homepageID && page.Type == "page" {
+			err = c.DeletePage(page.ID)
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// the results are paginated so call the method again recursively until all pages are deleted
+	if res.Size == res.Limit {
+		return c.DeleteAllPagesInSpaceExceptHomepage(spaceKey, homepageID)
+	}
+
+	return nil
+}
+
 // DeletePage deletes a page from Confluence
 func (c *Client) DeletePage(pageID string) (err error) {
 	return c.httpClient.DeleteContent(pageID)

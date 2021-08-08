@@ -49,14 +49,11 @@ func (h *homepage) cqlTimeOffset() (int, error) {
 	err := errors.Retry(5, 1000, func() (err error) { //nolint:gomnd
 		for o := minOffset; o <= maxOffset; o++ {
 			cqlTime := h.created.CQLFormat(o)
-			pages := h.apiClient.PagesCreatedAt(cqlTime)
 
-			for _, pg := range pages {
-				if pg == h.id {
-					logger.Debugf(true, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
-					offset = o
-					return
-				}
+			if h.apiClient.WasPageCreatedAt(cqlTime, h.id) {
+				logger.Debugf(true, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
+				offset = o
+				return
 			}
 		}
 		return fmt.Errorf("could not calculate time offset for Confluence CQL searches")

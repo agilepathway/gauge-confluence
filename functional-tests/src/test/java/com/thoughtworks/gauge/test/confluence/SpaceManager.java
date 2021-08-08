@@ -16,7 +16,7 @@ public class SpaceManager {
     @Step("Create space")
     public void createSpace() {
         ConfluenceClient.createSpace(spaceKey(), spaceKey());
-        System.out.println("Deleted space: " + spaceKey());
+        System.out.println("Created space: " + spaceKey());
     }
 
     @Step("Delete all spaces named <space name>")

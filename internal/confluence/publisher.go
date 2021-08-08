@@ -50,6 +50,13 @@ func (p *Publisher) Publish(specPaths []string) {
 		return
 	}
 
+	err = p.space.deleteAllPagesExceptHomepage()
+
+	if err != nil {
+		p.printFailureMessage(err)
+		return
+	}
+
 	for _, specPath := range specPaths {
 		err = p.publishAllSpecsUnder(specPath)
 		if err != nil {

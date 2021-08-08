@@ -57,6 +57,37 @@ func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID
 	return responseContent.ID, nil
 }
 
+// DeleteAllPagesInSpaceExceptHomepage deletes all the pages in the given Space,
+// apart from the Space home page
+func (c *Client) DeleteAllPagesInSpaceExceptHomepage(spaceKey string, homepageID string) (err error) {
+	pageLimit := 10
+	res, err := c.goconfluenceClient.GetContent(goconfluence.ContentQuery{
+		SpaceKey: spaceKey,
+		Limit:    pageLimit,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	for _, page := range res.Results {
+		if page.ID != homepageID && page.Type == "page" {
+			err = c.DeletePage(page.ID)
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// the results are paginated so call the method again recursively until all pages are deleted
+	if res.Size == res.Limit {
+		return c.DeleteAllPagesInSpaceExceptHomepage(spaceKey, homepageID)
+	}
+
+	return nil
+}
+
 // DeletePage deletes a page from Confluence
 func (c *Client) DeletePage(pageID string) (err error) {
 	return c.httpClient.DeleteContent(pageID)
@@ -109,20 +140,20 @@ func (c *Client) IsSpaceModifiedSinceLastPublished(spaceKey string, lastPublishe
 	return result.TotalSize > 0, nil
 }
 
-// PagesCreatedAt returns the pageIDs for pages created at the given cqlTime.
-func (c *Client) PagesCreatedAt(cqlTime string) []string {
+// WasPageCreatedAt returns true if the page was created at the given time.
+func (c *Client) WasPageCreatedAt(cqlTime string, pageID string) bool {
 	query := goconfluence.SearchQuery{
-		CQL: fmt.Sprintf("created=\"%s\"", cqlTime),
+		CQL: fmt.Sprintf("created=\"%s\" AND ID=\"%s\"", cqlTime, pageID),
 	}
 	result, _ := c.goconfluenceClient.Search(query)
 
-	pages := make([]string, len(result.Results))
-
 	for _, r := range result.Results {
-		pages = append(pages, r.Content.ID)
+		if pageID == r.Content.ID {
+			return true
+		}
 	}
 
-	return pages
+	return false
 }
 
 func baseEndpoint() string {

@@ -30,3 +30,22 @@ chance of duplicate spec headings.
 * Output contains <result>
 * Output contains <message>
 
+## Republishing after fixing the duplicate spec headings or directory names works fine
+
+* Publish specs to Confluence:
+
+   |heading|
+   |-------|
+   |same   |
+   |same   |
+
+* Output contains "Failed: 2 specs have the same heading"
+
+* Publish specs to Confluence:
+
+   |heading      |
+   |-------------|
+   |same same    |
+   |but different|
+
+* Output contains "Success"

@@ -65,7 +65,9 @@ func (p *Publisher) Publish(specPaths []string) {
 	}
 
 	if err != nil {
+		p.space.updateLastPublished() //nolint:errcheck,gosec
 		p.printFailureMessage(err)
+
 		return
 	}
 

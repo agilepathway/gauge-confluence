@@ -10,3 +10,6 @@ These specs are just helper functions - they do not document or exercise the Gau
 
 ## Delete all spaces with given name
 * Delete all spaces named "Change me to the name of the space you want to delete"
+
+## Print space content
+* Print content for space with key "e683d1a0712948cebe70dae5afb55354"

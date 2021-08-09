@@ -1,6 +1,4 @@
 # Confluence Space validity
-
-## Publishing is aborted if the Space has been manually edited since the last publish
 This Gauge Confluence plugin requires that the specs for a given Gauge project are published to
 their own dedicated [Confluence Space][1], with no manual edits or additions in Confluence.
 Having the Space only contain published Gauge specs ensures that there is no danger of the plugin
@@ -9,21 +7,27 @@ NB The specs can still appear alongside your existing manually created Confluenc
 in other spaces, by using Confluence's [Include Page macro][2].  This macro
 [allows you to include the full page tree of specs in as many other spaces as you like][3].
 
-* Publish specs to Confluence:
 
-   |heading|
-   |-------|
-   |A spec |
+## Publishing is aborted if the Space has been manually edited since the last publish
+
+* Publish "1" specs to Confluence
 
 * Manually add a page to the Confluence space
 
-* Publish specs to Confluence:
-
-   |heading     |
-   |------------|
-   |Another spec|
+* Publish "1" specs to Confluence
 
 * The error message "Failed: the space has been modified since the last publish" should be output
+
+
+## Publishing is aborted if the Space is not empty and has never been published to
+The Space can have a homepage but no other pages before the first ever publish to the Space.
+
+* Manually add a page to the Confluence space
+
+* Publish "1" specs to Confluence
+
+* The error message "Failed: the space must be empty when you publish for the first time" should be output
+
 
 
 __________________________________________________________________________________________

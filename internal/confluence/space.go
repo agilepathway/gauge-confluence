@@ -43,11 +43,23 @@ func (s *space) setup() error {
 	}
 
 	logger.Debugf(true, "Last published: %s", lastPublishedString)
+	logger.Debugf(true, "Last published version: %d", version)
 
 	s.lastPublished = time.NewLastPublished(lastPublishedString, version)
 
-	if s.lastPublished.Version == 0 || s.homepage.childless {
-		return nil
+	if s.lastPublished.Version == 0 {
+		blankSpace, err := s.isBlank()
+
+		if err != nil {
+			return err
+		}
+
+		if blankSpace {
+			return nil
+		}
+
+		return fmt.Errorf("the space must be empty when you publish for the first time. "+
+			"It can contain a homepage but no other pages. Space key: %s", s.key)
 	}
 
 	cqlTime := s.lastPublished.Time.CQLFormat(s.cqlOffset)
@@ -64,6 +76,18 @@ func (s *space) setup() error {
 	}
 
 	return nil
+}
+
+func (s *space) isBlank() (bool, error) {
+	totalPagesInSpace, err := s.apiClient.TotalPagesInSpace(s.key)
+
+	logger.Debugf(true, "Total pages in Confluence space prior to publishing: %d", totalPagesInSpace)
+
+	if err != nil {
+		return false, err
+	}
+
+	return totalPagesInSpace <= 1, nil
 }
 
 func (s *space) parentPageIDFor(path string) string {
@@ -104,6 +128,8 @@ func (s *space) updateLastPublished() error {
 	value := Value{
 		LastPublished: time.Now().String(),
 	}
+
+	logger.Debugf(true, "updating last published version to: %d", s.lastPublished.Version+1)
 
 	return s.apiClient.SetContentProperty(s.homepage.id, time.LastPublishedPropertyKey, value, s.lastPublished.Version+1)
 }

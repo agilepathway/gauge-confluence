@@ -7,6 +7,7 @@ NB The specs can still appear alongside your existing manually created Confluenc
 in other spaces, by using Confluence's [Include Page macro][2].  This macro
 [allows you to include the full page tree of specs in as many other spaces as you like][3].
 
+
 ## Publishing is aborted if the Space has been manually edited since the last publish
 
 * Publish "1" specs to Confluence
@@ -16,6 +17,17 @@ in other spaces, by using Confluence's [Include Page macro][2].  This macro
 * Publish "1" specs to Confluence
 
 * The error message "Failed: the space has been modified since the last publish" should be output
+
+
+## Publishing is aborted if the Space is not empty and has never been published to
+The Space can have a homepage but no other pages before the first ever publish to the Space.
+
+* Manually add a page to the Confluence space
+
+* Publish "1" specs to Confluence
+
+* The error message "Failed: the space must be empty when you publish for the first time" should be output
+
 
 
 __________________________________________________________________________________________

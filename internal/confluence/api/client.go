@@ -156,6 +156,20 @@ func (c *Client) WasPageCreatedAt(cqlTime string, pageID string) bool {
 	return false
 }
 
+// TotalPagesInSpace returns the number of pages (and blogposts) in the given Space
+func (c *Client) TotalPagesInSpace(spaceKey string) (int, error) {
+	query := goconfluence.SearchQuery{
+		CQL: fmt.Sprintf("space=\"%s\" AND type IN (page, blogpost)", spaceKey),
+	}
+	result, err := c.goconfluenceClient.Search(query)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return result.TotalSize, nil
+}
+
 func baseEndpoint() string {
 	return fmt.Sprintf("%s/rest/api", baseURL())
 }
@@ -219,6 +233,11 @@ func (c *Client) LastPublished(spaceHomepageID, propertyKey string) (string, int
 	err := c.httpClient.GetJSON(path, &resp)
 
 	if err != nil && !strings.Contains(err.Error(), "404") {
+		// a 404 error means the lastPublished property has never been set, so return 0 as the version number
+		if strings.Contains(err.Error(), "404") {
+			return "", 0, nil
+		}
+
 		return "", 0, err
 	}
 

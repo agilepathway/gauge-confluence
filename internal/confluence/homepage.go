@@ -19,9 +19,9 @@ type homepage struct {
 
 func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 	id, children, created, err := a.SpaceHomepage(spaceKey)
-	logger.Debugf(true, "Space homepage id: %s", id)
-	logger.Debugf(true, "Space homepage number of children: %d", children)
-	logger.Debugf(true, "Space homepage created: %v", created)
+	logger.Debugf(false, "Space homepage id: %s", id)
+	logger.Debugf(false, "Space homepage number of children: %d", children)
+	logger.Debugf(false, "Space homepage created: %v", created)
 
 	h := homepage{id: id, created: time.NewTime(created), childless: children == 0, spaceKey: spaceKey, apiClient: a}
 
@@ -38,8 +38,8 @@ func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 // queries required by their Confluence instance - see:
 // https://community.atlassian.com/t5/Confluence-questions/How-do-I-pass-a-UTC-time-as-the-value-of-lastModified-in-a-REST/qaq-p/1557903
 func (h *homepage) cqlTimeOffset() (int, error) {
-	logger.Debugf(true, "Confluence homepage ID is %s for space %s", h.spaceKey, h.id)
-	logger.Debugf(true, "Homepage created at: %v (UTC)", h.created)
+	logger.Debugf(false, "Confluence homepage ID is %s for space %s", h.spaceKey, h.id)
+	logger.Debugf(false, "Homepage created at: %v (UTC)", h.created)
 	// nolint:gomnd
 	minOffset := -12 // the latest time zone on earth, 12 hours behind UTC
 	maxOffset := 14  // the earliest time zone on earth, 14 hours ahead of UTC
@@ -51,7 +51,7 @@ func (h *homepage) cqlTimeOffset() (int, error) {
 			cqlTime := h.created.CQLFormat(o)
 
 			if h.apiClient.WasPageCreatedAt(cqlTime, h.id) {
-				logger.Debugf(true, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
+				logger.Debugf(false, "Successfully calculated time offset for Confluence CQL searches: UTC %+d hours", o)
 				offset = o
 				return
 			}

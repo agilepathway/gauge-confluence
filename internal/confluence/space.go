@@ -42,8 +42,8 @@ func (s *space) setup() error {
 		return err
 	}
 
-	logger.Debugf(true, "Last published: %s", lastPublishedString)
-	logger.Debugf(true, "Last published version: %d", version)
+	logger.Debugf(false, "Last published: %s", lastPublishedString)
+	logger.Debugf(false, "Last published version: %d", version)
 
 	s.lastPublished = time.NewLastPublished(lastPublishedString, version)
 
@@ -81,7 +81,7 @@ func (s *space) setup() error {
 func (s *space) isBlank() (bool, error) {
 	totalPagesInSpace, err := s.apiClient.TotalPagesInSpace(s.key)
 
-	logger.Debugf(true, "Total pages in Confluence space prior to publishing: %d", totalPagesInSpace)
+	logger.Debugf(false, "Total pages in Confluence space prior to publishing: %d", totalPagesInSpace)
 
 	if err != nil {
 		return false, err
@@ -129,7 +129,7 @@ func (s *space) updateLastPublished() error {
 		LastPublished: time.Now().String(),
 	}
 
-	logger.Debugf(true, "updating last published version to: %d", s.lastPublished.Version+1)
+	logger.Debugf(false, "updating last published version to: %d", s.lastPublished.Version+1)
 
 	return s.apiClient.SetContentProperty(s.homepage.id, time.LastPublishedPropertyKey, value, s.lastPublished.Version+1)
 }

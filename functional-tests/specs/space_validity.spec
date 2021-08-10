@@ -29,6 +29,14 @@ The Space can have a homepage but no other pages before the first ever publish t
 * The error message "Failed: the space must be empty when you publish for the first time" should be output
 
 
+## Publishing is aborted if the Space does not have a homepage
+
+* Manually delete the Confluence space homepage
+
+* Publish "1" specs to Confluence
+
+* The error message "add a homepage manually in Confluence to the space, then try again" should be output
+
 
 __________________________________________________________________________________________
 

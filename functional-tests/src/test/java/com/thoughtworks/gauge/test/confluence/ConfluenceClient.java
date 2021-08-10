@@ -14,8 +14,14 @@ import org.json.JSONObject;
 
 public class ConfluenceClient {
 
-    public static void createSpace(String spaceKey, String spaceName) {
-        sendConfluenceRequest(createSpaceRequest(spaceKey, spaceName));
+    /**
+     * 
+     * @return the newly created Space's homepage ID
+     */
+    public static String createSpace(String spaceKey, String spaceName) {
+        HttpResponse<String> rawResponse = sendConfluenceRequest(createSpaceRequest(spaceKey, spaceName));
+        JSONObject jsonResponse = new JSONObject(rawResponse.body());
+        return jsonResponse.getJSONObject("homepage").getString("id");
     }
 
     public static void deleteSpace(String spaceKey) {
@@ -29,7 +35,7 @@ public class ConfluenceClient {
     public static JSONArray getAllPages(String spaceKey) {
         return getResults(getAllPagesRequest(spaceKey));
     }
-
+ 
     public static JSONArray getResults(HttpRequest request) {
         HttpResponse<String> rawResponse = sendConfluenceRequest(request);
         JSONObject jsonResponse = new JSONObject(rawResponse.body());
@@ -37,6 +43,10 @@ public class ConfluenceClient {
     }
     public static void createPage(String spaceKey) {
         sendConfluenceRequest(createPageRequest(spaceKey));
+    }
+
+    public static void deletePage(String pageID) {
+        sendConfluenceRequest(deletePageRequest(pageID));
     }
 
     private static HttpRequest createSpaceRequest(String spaceKey, String spaceName) {
@@ -63,6 +73,14 @@ public class ConfluenceClient {
     private static HttpRequest deleteSpaceRequest(String spaceKey) {
         HttpRequest.Builder builder = baseConfluenceRequest();
         String deleteSpaceURL = String.format("%1$s/%2$s", baseSpaceAPIURL(), spaceKey);
+        builder.uri(URI.create(deleteSpaceURL));
+        builder.DELETE();
+        return builder.build();
+    }
+
+    public static HttpRequest deletePageRequest(String pageID) {
+        HttpRequest.Builder builder = baseConfluenceRequest();
+        String deleteSpaceURL = String.format("%1$s/%2$s", baseContentAPIURL(), pageID);
         builder.uri(URI.create(deleteSpaceURL));
         builder.DELETE();
         return builder.build();

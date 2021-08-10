@@ -12,6 +12,7 @@ import (
 	"github.com/agilepathway/gauge-confluence/internal/errors"
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
 	"github.com/agilepathway/gauge-confluence/internal/git"
+	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
 // Publisher publishes Gauge specifications to Confluence.
@@ -44,11 +45,15 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 
+	logger.Infof(true, "Preparing to publish Gauge specs to Confluence ...")
+
 	err = p.space.setup()
 	if err != nil {
 		p.printFailureMessage(err)
 		return
 	}
+
+	logger.Infof(true, "Publishing Gauge specs to Confluence ...")
 
 	err = p.space.deleteAllPagesExceptHomepage()
 

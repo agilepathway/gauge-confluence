@@ -23,11 +23,12 @@ func newHomepage(spaceKey string, a api.Client) (homepage, error) {
 	logger.Debugf(false, "Space homepage number of children: %d", children)
 	logger.Debugf(false, "Space homepage created: %v", created)
 
-	h := homepage{id: id, created: time.NewTime(created), childless: children == 0, spaceKey: spaceKey, apiClient: a}
-
 	if id == "" {
-		return h, fmt.Errorf("could not obtain a homepage ID for space: %s", spaceKey)
+		return homepage{}, fmt.Errorf("the Confluence space with key %s has no homepage - "+
+			"add a homepage manually in Confluence to the space, then try again", spaceKey)
 	}
+
+	h := homepage{id: id, created: time.NewTime(created), childless: children == 0, spaceKey: spaceKey, apiClient: a}
 
 	return h, err
 }

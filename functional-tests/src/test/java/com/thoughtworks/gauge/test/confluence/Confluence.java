@@ -19,15 +19,21 @@ public class Confluence {
 
     private static final String SCENARIO_SPACE_KEY_NAME = "confluence-space-key";
     private static final String SCENARIO_SPACE_NAME = "Space";
+    private static final String SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME = "confluence-space-homepage-id-key";
 
     public static String getScenarioSpaceKey() {
         return (String) ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME);
     }
 
+    public static String getScenarioSpaceHomepageID() {
+        return (String) ScenarioDataStore.get(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME);
+    }
+
     @BeforeScenario
     public void BeforeScenario() {
         ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
-        ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
+        String spaceHomepageID = ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
+        ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
     }
 
     @AfterScenario
@@ -58,6 +64,11 @@ public class Confluence {
         waitForNextMinuteToStart();
         ConfluenceClient.createPage(getScenarioSpaceKey());
         TimeUnit.SECONDS.sleep(2); // give Confluence time to process the added page
+    }
+
+    @Step("Manually delete the Confluence space homepage")
+    public void manuallyDeleteTheConfluenceSpaceHomepage() {
+       ConfluenceClient.deletePage(getScenarioSpaceHomepageID());
     }
 
     private void waitForNextMinuteToStart() throws InterruptedException {

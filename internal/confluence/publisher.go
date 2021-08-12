@@ -17,9 +17,10 @@ import (
 
 // Publisher publishes Gauge specifications to Confluence.
 type Publisher struct {
-	apiClient api.Client
-	space     space           // Represents the Confluence Space that is published to
-	specs     map[string]Spec // keyed by filepath
+	apiClient   api.Client
+	space       space           // Represents the Confluence Space that is published to
+	specs       map[string]Spec // keyed by filepath
+	dryRunPages map[string]page // Used to check for duplicate pages, keyed by filepath
 }
 
 // NewPublisher instantiates a new Publisher.
@@ -27,7 +28,8 @@ func NewPublisher(m *gauge_messages.SpecDetails) Publisher {
 	spaceKey := env.GetRequired("CONFLUENCE_SPACE_KEY")
 	apiClient := api.NewClient()
 
-	return Publisher{apiClient: apiClient, space: newSpace(spaceKey, apiClient), specs: makeSpecsMap(m)}
+	return Publisher{apiClient: apiClient, space: newSpace(spaceKey, apiClient), specs: makeSpecsMap(m),
+		dryRunPages: make(map[string]page)}
 }
 
 func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
@@ -52,6 +54,18 @@ func (p *Publisher) Publish(specPaths []string) {
 		p.printFailureMessage(err)
 		return
 	}
+
+	logger.Infof(true, "Checking specs can be published ...")
+
+	for _, specPath := range specPaths {
+		err = p.dryRunChecks(specPath)
+		if err != nil {
+			p.printFailureMessage(err)
+			return
+		}
+	}
+
+	logger.Infof(true, "Checking finished successfully ...")
 
 	logger.Infof(true, "Publishing Gauge specs to Confluence ...")
 
@@ -90,6 +104,10 @@ func (p *Publisher) printFailureMessage(s interface{}) {
 	fmt.Printf("Failed: %v", s)
 }
 
+func (p *Publisher) dryRunChecks(baseSpecPath string) (err error) {
+	return filepath.WalkDir(baseSpecPath, p.dryRunCheck)
+}
+
 func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {
 	err = filepath.WalkDir(baseSpecPath, p.publishIfDirOrSpec)
 	if err != nil {
@@ -97,6 +115,31 @@ func (p *Publisher) publishAllSpecsUnder(baseSpecPath string) (err error) {
 	}
 
 	return p.space.deleteEmptyDirPages()
+}
+
+func (p *Publisher) dryRunCheck(path string, d fs.DirEntry, err error) error {
+	entry := gauge.NewDirEntry(path, d)
+	if entry.IsDirOrSpec() {
+		pg, err := newPage(entry, "", p.specs[entry.Path])
+		if err != nil {
+			if errors.IsNonfatal(err) {
+				fmt.Printf("Skipping file: %v", err)
+				return nil
+			}
+
+			return err
+		}
+
+		err = p.checkForDuplicateTitle(pg)
+
+		if err != nil {
+			return err
+		}
+
+		p.dryRunPages[pg.path] = pg
+	}
+
+	return err
 }
 
 func (p *Publisher) publishIfDirOrSpec(path string, d fs.DirEntry, err error) error {
@@ -126,11 +169,6 @@ func (p *Publisher) publishDirOrSpec(entry gauge.DirEntry) error {
 }
 
 func (p *Publisher) publishPage(pg page) (err error) {
-	err = p.space.checkForDuplicateTitle(pg)
-	if err != nil {
-		return err
-	}
-
 	publishedPageID, err := p.apiClient.PublishPage(p.space.key, pg.title, pg.body, pg.parentID)
 
 	if err != nil {
@@ -140,6 +178,17 @@ func (p *Publisher) publishPage(pg page) (err error) {
 	pg.id = publishedPageID
 
 	p.space.publishedPages[pg.path] = pg
+
+	return nil
+}
+
+// checkForDuplicateTitle returns an error if the given page has the same title as an already published page.
+func (p *Publisher) checkForDuplicateTitle(given page) error {
+	for _, pg := range p.dryRunPages {
+		if pg.title == given.title {
+			return &duplicatePageError{pg, given}
+		}
+	}
 
 	return nil
 }

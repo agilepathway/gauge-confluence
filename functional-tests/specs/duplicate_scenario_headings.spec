@@ -8,14 +8,14 @@ NB the spec filenames are not relevant, it's just the spec headings and the dire
 This table shows examples with two specifications, as there needs to be at least two specs for there to be a
 chance of duplicate spec headings.
 
-   |spec 1 heading|spec 1 path  |spec 2 heading|spec 2 path      |result |message                                       |
-   |--------------|-------------|--------------|-----------------|-------|----------------------------------------------|
-   |one           |specs        |two           |specs            |Success|                                              |
-   |one           |specs/folder |two           |specs/folder     |Success|                                              |
-   |one           |specs/folder1|two           |specs/folder2    |Success|                                              |
-   |same          |specs/folder1|same          |specs/folder2    |Failed |2 specs have the same heading                 |
-   |one           |specs/same   |two           |specs/folder/same|Failed |2 directories have the same name              |
-   |same          |specs/same   |two           |specs            |Failed |A spec heading and directory name are the same|
+   |spec 1 heading|spec 1 path  |spec 2 heading|spec 2 path      |did publishing occur?|message                                       |
+   |--------------|-------------|--------------|-----------------|---------------------|----------------------------------------------|
+   |one           |specs        |two           |specs            |did                  |                                              |
+   |one           |specs/folder |two           |specs/folder     |did                  |                                              |
+   |one           |specs/folder1|two           |specs/folder2    |did                  |                                              |
+   |same          |specs/folder1|same          |specs/folder2    |did not              |2 specs have the same heading                 |
+   |one           |specs/same   |two           |specs/folder/same|did not              |2 directories have the same name              |
+   |same          |specs/same   |two           |specs            |did not              |A spec heading and directory name are the same|
 
 
 ## Publishing to Confluence fails if there are any duplicate spec headings or directory names
@@ -27,7 +27,7 @@ chance of duplicate spec headings.
    |<spec 1 heading>|<spec 1 path>|
    |<spec 2 heading>|<spec 2 path>|
 
-* Output contains <result>
+* publishing <did publishing occur?> occur
 * Output contains <message>
 
 ## Republishing after fixing the duplicate spec headings or directory names works fine
@@ -39,7 +39,7 @@ chance of duplicate spec headings.
    |same   |
    |same   |
 
-* Output contains "Failed: 2 specs have the same heading"
+* publishing "did not" occur
 
 * Publish specs to Confluence:
 
@@ -48,4 +48,4 @@ chance of duplicate spec headings.
    |same same    |
    |but different|
 
-* Output contains "Success"
+* publishing "did" occur

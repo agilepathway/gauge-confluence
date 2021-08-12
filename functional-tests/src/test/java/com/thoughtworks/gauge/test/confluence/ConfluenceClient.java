@@ -88,7 +88,7 @@ public class ConfluenceClient {
 
     private static HttpRequest getAllPagesRequest(String spaceKey) {
         HttpRequest.Builder builder = baseConfluenceRequest();
-        String getAllPagesURL = String.format("%1$s?spaceKey=%2$s&expand=ancestors", baseContentAPIURL(), spaceKey);
+        String getAllPagesURL = String.format("%1$s?spaceKey=%2$s&type=page&expand=ancestors", baseContentAPIURL(), spaceKey);
         builder.uri(URI.create(getAllPagesURL));
         return builder.build();
     }

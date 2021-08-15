@@ -20,6 +20,7 @@ public class Confluence {
     private static final String SCENARIO_SPACE_KEY_NAME = "confluence-space-key";
     private static final String SCENARIO_SPACE_NAME = "Space";
     private static final String SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME = "confluence-space-homepage-id-key";
+    private static final String DRY_RUN_MODE = "dry-run-mode";
 
     public static String getScenarioSpaceKey() {
         return (String) ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME);
@@ -29,16 +30,26 @@ public class Confluence {
         return (String) ScenarioDataStore.get(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME);
     }
 
+    public static boolean isDryRun() {
+        return (boolean) ScenarioDataStore.get(DRY_RUN_MODE);
+    }
+
     @BeforeScenario
     public void BeforeScenario() {
         ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
         String spaceHomepageID = ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
         ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
+        ScenarioDataStore.put(DRY_RUN_MODE, false);
     }
 
     @AfterScenario
     public void AfterScenario() {
         ConfluenceClient.deleteSpace(getScenarioSpaceKey());
+    }
+
+    @Step("Activate dry run mode")
+    public void activateDryRunMode() {
+        ScenarioDataStore.put(DRY_RUN_MODE, true);
     }
 
     @Step("Published pages are: <table>")
@@ -61,7 +72,7 @@ public class Confluence {
             new Console().outputContains("Success: published");
             assertThat(space.totalPages()).isGreaterThan(1);
         } else {
-            new Console().outputContains("Failed");
+            new Console().outputDoesNotContain("Success: published");
             assertThat(space.totalPages()).isEqualTo(1);
         }
     }

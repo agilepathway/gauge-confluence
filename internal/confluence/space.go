@@ -101,17 +101,6 @@ func (s *space) parentPageIDFor(path string) string {
 	return parentPageID
 }
 
-// checkForDuplicateTitle returns an error if the given page has the same title as an already published page.
-func (s *space) checkForDuplicateTitle(given page) error {
-	for _, p := range s.publishedPages {
-		if p.title == given.title {
-			return &duplicatePageError{p, given}
-		}
-	}
-
-	return nil
-}
-
 // Value contains the LastPublished time
 type Value struct {
 	LastPublished string `json:"lastPublished"`

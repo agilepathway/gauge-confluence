@@ -42,7 +42,7 @@ public class Confluence {
     }
 
     @Step("Published pages are: <table>")
-    public void createSpec(Table expectedPages) throws Exception {
+    public void assertPublishedPages(Table expectedPages) throws Exception {
         int expectedTotal = expectedPages.getTableRows().size();
         assertConsoleSuccessOutput(expectedTotal - 1); // don't count the homepage as we don't publish it
         Space space = new Space(getScenarioSpaceKey());
@@ -50,6 +50,19 @@ public class Confluence {
         for (TableRow row : expectedPages.getTableRows()) {
             String actualParentPageTitle = space.getParentPageTitle(row.getCell("title"));
             assertThat(actualParentPageTitle).isEqualTo(row.getCell("parent"));
+        }
+    }
+
+    @Step("publishing <did or did not> occur")
+    public void didPublishingOccur(String didPublishingOccur) throws IOException {
+        boolean publishingOccurred = (didPublishingOccur.equalsIgnoreCase("did"));
+        Space space = new Space(getScenarioSpaceKey());
+        if (publishingOccurred) {
+            new Console().outputContains("Success: published");
+            assertThat(space.totalPages()).isGreaterThan(1);
+        } else {
+            new Console().outputContains("Failed");
+            assertThat(space.totalPages()).isEqualTo(1);
         }
     }
 

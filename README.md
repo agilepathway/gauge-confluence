@@ -120,7 +120,7 @@ It controls the logging level both for the log files which are generated, _and_ 
 NB the command line flag `--log-level` does not have any effect on the logging for this plugin.
 
 
-**Setting the `DRY_RUN` variable to true means that running the plugin does not publish specs to Confluence.**
+**Setting the `DRY_RUN` variable to `true` means that running the plugin does not publish specs to Confluence.**
 
 Instead the plugin just checks that the specs are in a valid publishable state (e.g. that there are no duplicate
 spec headings).

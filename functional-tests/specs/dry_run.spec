@@ -6,8 +6,8 @@ pipeline build can fail, alerting the submitter of the pull request to amend the
 that the Gauge specs are always in good shape to be automatically published by the CI/CD pipeline upon any push to the 
 trunk branch (e.g. upon a successful pull request merge).
 
-The dry run mode is set by setting a `DRY_RUN` [environment variable or property][2] (we can't use a command-line flag 
-for this as [Gauge does not propagate command line flags to documentation plugins][1]).
+The dry run mode is set by setting a `DRY_RUN` [environment variable or property][2] with the value `true` (we can't
+use a command-line flag for this as [Gauge does not propagate command line flags to documentation plugins][1]).
 
 
    |spec 1 heading|spec 2 heading|did publishing occur?|message                            |

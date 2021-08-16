@@ -248,6 +248,9 @@ public abstract class GaugeProject {
             throws Exception {
         if (!envVars.containsKey("CONFLUENCE_SPACE_KEY"))
             envVars.put("CONFLUENCE_SPACE_KEY", (String) Confluence.getScenarioSpaceKey());
+        if (Confluence.isDryRun()) {
+            envVars.put("DRY_RUN", "true");
+        }
         boolean success = executeGaugeCommand(args, envVars);
         return new ExecutionSummary(String.join(" ", args), success, lastProcessStdout, lastProcessStderr);
     }

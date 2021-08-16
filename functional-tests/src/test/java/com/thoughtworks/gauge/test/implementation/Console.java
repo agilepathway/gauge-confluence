@@ -15,6 +15,12 @@ public class Console {
         assertThat(output).contains(message);
     }
 
+    @Step("Output doesNotContain <message>")
+    public void outputDoesNotContain(String message) throws IOException {
+        String output = getCurrentProject().getStdOut();
+        assertThat(output).doesNotContain(message);
+    }
+
     @Step({ "Output contains <message> <message2> <message3>" })
     public void outputContainsMessages(String message, String message2, String message3) throws IOException {
         String output = getCurrentProject().getStdOut();

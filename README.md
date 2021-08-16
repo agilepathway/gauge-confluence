@@ -84,7 +84,7 @@ If you find a problem with a particular version of Confluence, please
 
 ### Plugin setup
 
-There are four mandatory variables to configure, as either:
+There are four mandatory variables and two optional variables to configure, as either:
 
 1. environment variables
 
@@ -92,7 +92,7 @@ There are four mandatory variables to configure, as either:
    [properties file](https://docs.gauge.org/configuration.html#local-configuration-of-gauge-default-properties),
    e.g. `<project_root>/env/default/anythingyoulike.properties`
 
-The four variables to configure are:
+The four mandatory variables to configure are:
 
 `CONFLUENCE_BASE_URL` e.g. `https://example.com/path-to-your-confluence-wiki` for Confluence Server, or `https://example.atlassian.net` for Confluence Cloud
 
@@ -109,9 +109,23 @@ NB You can use [Confluence's include macro](https://confluence.atlassian.com/doc
 to include the [page tree](https://confluence.atlassian.com/conf59/page-tree-macro-792499177.html) of Gauge Specs
 (that gets created by this plugin) in as many of your existing spaces as you like.
 
-There is also an optional `GAUGE_LOG_LEVEL` variable which can be set to `debug` or `info` (default is`info`).
+The two optional variables to configure are:
+
+`GAUGE_LOG_LEVEL`
+
+`DRY_RUN`
+
+The `GAUGE_LOG_LEVEL` variable can be set to `debug` or `info` (default is `info`).
 It controls the logging level both for the log files which are generated, _and_ what is logged to the console.
 NB the command line flag `--log-level` does not have any effect on the logging for this plugin.
+
+
+**Setting the `DRY_RUN` variable to true means that running the plugin does not publish specs to Confluence.**
+
+Instead the plugin just checks that the specs are in a valid publishable state (e.g. that there are no duplicate
+spec headings).
+This is very useful e.g. **in a CI/CD pipeline the plugin can run in dry run mode on feature branches and pull
+requests.** This ensures that the Gauge specs are always in good shape to be automatically published by the CI/CD pipeline upon any push to the trunk branch (e.g. upon a successful pull request merge).
 
 
 ### Running the plugin (i.e. publishing specs to Confluence)

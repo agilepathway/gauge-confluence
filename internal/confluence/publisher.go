@@ -47,7 +47,7 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 func (p *Publisher) Publish(specPaths []string) {
 	var err error
 
-	logger.Infof(true, "Preparing to publish Gauge specs to Confluence ...")
+	logger.Infof(true, "Checking specs are in a valid state for publishing to Confluence ...")
 
 	err = p.space.setup()
 	if err != nil {
@@ -55,18 +55,22 @@ func (p *Publisher) Publish(specPaths []string) {
 		return
 	}
 
-	logger.Infof(true, "Checking specs can be published ...")
-
 	for _, specPath := range specPaths {
 		err = p.dryRunChecks(specPath)
 		if err != nil {
 			p.printFailureMessage(err)
+			logger.Infof(true, "Please fix the error then try again")
+
 			return
 		}
 	}
 
-	logger.Infof(true, "Checking finished successfully ...")
+	if env.GetBoolean("DRY_RUN") {
+		logger.Infof(true, "Dry run finished successfully")
+		return
+	}
 
+	logger.Infof(true, "Checking finished successfully")
 	logger.Infof(true, "Publishing Gauge specs to Confluence ...")
 
 	err = p.space.deleteAllPagesExceptHomepage()
@@ -97,11 +101,11 @@ func (p *Publisher) Publish(specPaths []string) {
 		return
 	}
 
-	fmt.Printf("Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
+	logger.Infof(true, "Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
 }
 
 func (p *Publisher) printFailureMessage(s interface{}) {
-	fmt.Printf("Failed: %v", s)
+	logger.Infof(true, "Failed: %v", s)
 }
 
 func (p *Publisher) dryRunChecks(baseSpecPath string) (err error) {

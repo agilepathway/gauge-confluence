@@ -31,9 +31,9 @@ type handler struct {
 
 func (h *handler) GenerateDocs(c context.Context, m *gauge_messages.SpecDetails) (*gauge_messages.Empty, error) {
 	publisher := confluence.NewPublisher(m)
-	publisher.Publish(providedSpecsPaths())
+	err := publisher.Publish(providedSpecsPaths())
 
-	return &gauge_messages.Empty{}, nil
+	return &gauge_messages.Empty{}, err
 }
 
 func (h *handler) Kill(c context.Context, m *gauge_messages.KillProcessRequest) (*gauge_messages.Empty, error) {

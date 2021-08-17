@@ -20,32 +20,32 @@ chance of duplicate spec headings.
 
 ## Publishing to Confluence fails if there are any duplicate spec headings or directory names
 
-* Publish specs to Confluence:
+* Publish specs to Confluence and assert <did publishing occur?> succeed:
 
    |heading         |path         |
    |----------------|-------------|
    |<spec 1 heading>|<spec 1 path>|
    |<spec 2 heading>|<spec 2 path>|
 
-* publishing <did publishing occur?> occur
+* Specs <did publishing occur?> get published
 * Output contains <message>
 
 ## Republishing after fixing the duplicate spec headings or directory names works fine
 
-* Publish specs to Confluence:
+* Publish specs to Confluence and assert "did not" succeed:
 
    |heading|
    |-------|
    |same   |
    |same   |
 
-* publishing "did not" occur
+* Specs "did not" get published
 
-* Publish specs to Confluence:
+* Publish specs to Confluence and assert "did" succeed:
 
    |heading      |
    |-------------|
    |same same    |
    |but different|
 
-* publishing "did" occur
+* Specs "did" get published

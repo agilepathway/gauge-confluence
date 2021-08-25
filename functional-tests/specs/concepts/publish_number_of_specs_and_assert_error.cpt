@@ -1,0 +1,9 @@
+# Publish <number> specs to Confluence and assert error: <message>
+
+* Initialize an empty Gauge project
+
+* Create <number> specs
+
+* Publish Confluence Documentation for the current project and assert "did not" succeed
+
+* The error message <message> should be output

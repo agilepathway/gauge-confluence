@@ -23,6 +23,12 @@ public class Execution {
         assertOn(getCurrentProject().publishConfluenceDocumentation(), true);
     }
 
+    @Step("Publish Confluence Documentation for the current project and assert <did|did not> succeed")
+    public void publishConfluenceDocumentationForCurrentProjectAndAssertResult(String didOrDidNotSucceed) throws Exception {
+        boolean success = (didOrDidNotSucceed.equalsIgnoreCase("did"));
+        assertOn(getCurrentProject().publishConfluenceDocumentation(), success);
+    }
+
     @Step("Publish Confluence Documentation for the current project with no <variable> configured")
     public void publishConfluenceDocumentationForCurrentProjectWithConfigVarUnset(String configVar) throws Exception {
         assertOn(getCurrentProject().publishConfluenceDocumentationWithConfigVarUnset(configVar), false);

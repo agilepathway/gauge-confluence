@@ -64,7 +64,7 @@ public class Confluence {
         }
     }
 
-    @Step("publishing <did or did not> occur")
+    @Step("Specs <did|did not> get published")
     public void didPublishingOccur(String didPublishingOccur) throws IOException {
         boolean publishingOccurred = (didPublishingOccur.equalsIgnoreCase("did"));
         Space space = new Space(getScenarioSpaceKey());

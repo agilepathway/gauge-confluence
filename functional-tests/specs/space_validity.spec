@@ -14,9 +14,7 @@ in other spaces, by using Confluence's [Include Page macro][2].  This macro
 
 * Manually add a page to the Confluence space
 
-* Publish "1" specs to Confluence
-
-* The error message "Failed: the space has been modified since the last publish" should be output
+* Publish "1" specs to Confluence and assert error: "the space has been modified since the last publish"
 
 
 ## Publishing is aborted if the Space is not empty and has never been published to
@@ -24,19 +22,14 @@ The Space can have a homepage but no other pages before the first ever publish t
 
 * Manually add a page to the Confluence space
 
-* Publish "1" specs to Confluence
-
-* The error message "Failed: the space must be empty when you publish for the first time" should be output
+* Publish "1" specs to Confluence and assert error: "the space must be empty when you publish for the first time"
 
 
 ## Publishing is aborted if the Space does not have a homepage
 
 * Manually delete the Confluence space homepage
 
-* Publish "1" specs to Confluence
-
-* The error message "add a homepage manually in Confluence to the space, then try again" should be output
-
+* Publish "1" specs to Confluence and assert error: "add a homepage manually in Confluence to the space, then try again"
 
 __________________________________________________________________________________________
 

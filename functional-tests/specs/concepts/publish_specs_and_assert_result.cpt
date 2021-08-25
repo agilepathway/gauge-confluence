@@ -1,0 +1,7 @@
+# Publish specs to Confluence and assert <did|did not> succeed: <specs>
+
+* Initialize an empty Gauge project
+
+* Create specs <specs>
+
+* Publish Confluence Documentation for the current project and assert <did|did not> succeed

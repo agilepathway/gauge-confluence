@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Confluence {
@@ -23,7 +24,7 @@ public class Confluence {
     private static final String DRY_RUN_MODE = "dry-run-mode";
 
     public static String getScenarioSpaceKey() {
-        return (String) ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME);
+        return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), "");
     }
 
     public static String getScenarioSpaceHomepageID() {
@@ -34,16 +35,20 @@ public class Confluence {
         return (boolean) ScenarioDataStore.get(DRY_RUN_MODE);
     }
 
-    @BeforeScenario(tags = {"create-space-manually"})
-    public void beforeScenario() {
-        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
-        String spaceHomepageID = ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
-        ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
-    }
-
     @BeforeScenario
     public void setDryRunModeOff() {
         ScenarioDataStore.put(DRY_RUN_MODE, false);
+    }
+
+    @BeforeScenario
+    public void setSpaceKeyName() {
+        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
+    }
+
+    @BeforeScenario(tags = {"create-space-manually"})
+    public void beforeScenario() {
+        String spaceHomepageID = ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
+        ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
     }
 
     @AfterScenario(tags = {"create-space-manually"})

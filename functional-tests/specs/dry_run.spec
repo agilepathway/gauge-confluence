@@ -36,6 +36,18 @@ Tags: create-space-manually
 
 * Specs "did not" get published
 
+
+## Dry run mode does not require the Confluence Space to exist yet
+The absence of the "create-space-manually" tag means the Confluence Space does not
+exist for this scenario
+
+* Activate dry run mode
+
+* Publish "1" specs to Confluence
+
+* Output contains "Dry run finished successfully"
+
+
 __________________________________________________________________________________________
 
 [1]: https://docs.gauge.org/configuration.html

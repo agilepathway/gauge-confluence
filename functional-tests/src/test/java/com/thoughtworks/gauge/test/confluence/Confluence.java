@@ -34,16 +34,20 @@ public class Confluence {
         return (boolean) ScenarioDataStore.get(DRY_RUN_MODE);
     }
 
-    @BeforeScenario
-    public void BeforeScenario() {
+    @BeforeScenario(tags = {"create-space-manually"})
+    public void beforeScenario() {
         ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
         String spaceHomepageID = ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
         ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
+    }
+
+    @BeforeScenario
+    public void setDryRunModeOff() {
         ScenarioDataStore.put(DRY_RUN_MODE, false);
     }
 
-    @AfterScenario
-    public void AfterScenario() {
+    @AfterScenario(tags = {"create-space-manually"})
+    public void afterScenario() {
         ConfluenceClient.deleteSpace(getScenarioSpaceKey());
     }
 

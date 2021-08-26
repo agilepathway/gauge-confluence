@@ -1,4 +1,5 @@
 # Spec validity for publishing to Confluence
+Tags: create-space-manually
 
 ## Specs without a heading are not published to Confluence
 

@@ -1,4 +1,5 @@
 # Configuration variables are required to be set
+Tags: create-space-manually
 
    |config variable     |
    |--------------------|

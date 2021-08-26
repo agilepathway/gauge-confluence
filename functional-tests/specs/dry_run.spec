@@ -21,6 +21,7 @@ use a command-line flag for this as [Gauge does not propagate command line flags
 
 
 ## Dry run mode indicates if specs are in a publishable state or not
+Tags: create-space-manually
 
 * Activate dry run mode
 

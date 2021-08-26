@@ -1,4 +1,5 @@
 # End to end example
+Tags: create-space-manually
 
 ## All specs are published, including those in subdirectories
 The specs are published to Confluence as a page tree, mirroring the directory structure of the specs.  This means that

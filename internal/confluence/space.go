@@ -130,8 +130,8 @@ func (s *space) deleteAllPagesExceptHomepage() (err error) {
 // deleteEmptyDirPages deletes any pages that the plugin has published to in this run
 // that are empty directories
 func (s *space) deleteEmptyDirPages() (err error) {
-	for key, page := range s.publishedPages {
-		if s.isEmptyDir(page) {
+	for s.hasEmptyDirPages() {
+		for key, page := range s.emptyDirPages() {
 			err = s.apiClient.DeletePage(page.id)
 			if err != nil {
 				return err
@@ -142,6 +142,22 @@ func (s *space) deleteEmptyDirPages() (err error) {
 	}
 
 	return nil
+}
+
+func (s *space) hasEmptyDirPages() bool {
+	return len(s.emptyDirPages()) > 0
+}
+
+func (s *space) emptyDirPages() map[string]page {
+	emptyDirPages := make(map[string]page)
+
+	for key, page := range s.publishedPages {
+		if s.isEmptyDir(page) {
+			emptyDirPages[key] = page
+		}
+	}
+
+	return emptyDirPages
 }
 
 func (s *space) isEmptyDir(p page) bool {

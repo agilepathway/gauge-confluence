@@ -47,11 +47,6 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 func (p *Publisher) Publish(specPaths []string) (err error) {
 	logger.Infof(true, "Checking specs are in a valid state for publishing to Confluence ...")
 
-	err = p.space.setup()
-	if err != nil {
-		return err
-	}
-
 	for _, specPath := range specPaths {
 		err = p.dryRunChecks(specPath)
 		if err != nil {
@@ -66,6 +61,11 @@ func (p *Publisher) Publish(specPaths []string) (err error) {
 
 	logger.Infof(true, "Checking finished successfully")
 	logger.Infof(true, "Publishing Gauge specs to Confluence ...")
+
+	err = p.space.setup()
+	if err != nil {
+		return err
+	}
 
 	err = p.space.deleteAllPagesExceptHomepage()
 

@@ -21,6 +21,7 @@ use a command-line flag for this as [Gauge does not propagate command line flags
 
 
 ## Dry run mode indicates if specs are in a publishable state or not
+Tags: create-space-manually
 
 * Activate dry run mode
 
@@ -34,6 +35,18 @@ use a command-line flag for this as [Gauge does not propagate command line flags
 * Output contains <message>
 
 * Specs "did not" get published
+
+
+## Dry run mode does not require the Confluence Space to exist yet
+The absence of the "create-space-manually" tag means the Confluence Space does not
+exist for this scenario
+
+* Activate dry run mode
+
+* Publish "1" specs to Confluence
+
+* Output contains "Dry run finished successfully"
+
 
 __________________________________________________________________________________________
 

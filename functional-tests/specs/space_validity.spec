@@ -1,4 +1,6 @@
 # Confluence Space validity
+Tags: create-space-manually
+
 This Gauge Confluence plugin requires that the specs for a given Gauge project are published to
 their own dedicated [Confluence Space][1], with no manual edits or additions in Confluence.
 Having the Space only contain published Gauge specs ensures that there is no danger of the plugin

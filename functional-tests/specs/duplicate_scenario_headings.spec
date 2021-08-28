@@ -1,4 +1,6 @@
 # Duplicate spec headings and directory names
+Tags: create-space-manually
+
 The page title for every page in a Confluence space must be unique.
 We use the specification heading as the Confluence page title.
 And for directories we use the directory name as the Confluence page title.

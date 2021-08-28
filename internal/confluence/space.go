@@ -25,6 +25,11 @@ func newSpace(key string, apiClient api.Client) space {
 }
 
 func (s *space) setup() error {
+	err := s.createIfDoesNotAlreadyExist()
+	if err != nil {
+		return err
+	}
+
 	h, err := newHomepage(s.key, s.apiClient)
 	if err != nil {
 		return err
@@ -76,6 +81,25 @@ func (s *space) setup() error {
 	}
 
 	return nil
+}
+
+func (s *space) createIfDoesNotAlreadyExist() (err error) {
+	spaceExists, err := s.exists()
+	if err != nil {
+		return err
+	}
+
+	if spaceExists {
+		return nil
+	}
+
+	logger.Infof(true, "Space with key %s does not already exist, creating it ...", s.key)
+
+	return s.apiClient.CreateSpace(s.key)
+}
+
+func (s *space) exists() (bool, error) {
+	return s.apiClient.DoesSpaceExist(s.key)
 }
 
 func (s *space) isBlank() (bool, error) {

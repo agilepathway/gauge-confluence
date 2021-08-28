@@ -93,6 +93,42 @@ func (c *Client) DeletePage(pageID string) (err error) {
 	return c.httpClient.DeleteContent(pageID)
 }
 
+// CreateSpace creates a Confluence Space with the given key
+func (c *Client) CreateSpace(spaceKey string) error {
+	type Data struct {
+		Key  string `json:"key"`
+		Name string `json:"name"`
+	}
+
+	path := "space"
+	requestBody := Data{
+		spaceKey,
+		spaceKey,
+	}
+
+	return c.httpClient.PostJSON(path, requestBody)
+}
+
+// DoesSpaceExist indicates if the Confluence Space with the given key exists.
+func (c *Client) DoesSpaceExist(spaceKey string) (bool, error) {
+	path := fmt.Sprintf("space/%s", spaceKey)
+
+	var emptyStruct struct{}
+
+	err := c.httpClient.GetJSON(path, &emptyStruct)
+
+	if err != nil {
+		e, ok := err.(*http.RequestError)
+		if ok && e.StatusCode == 404 { //nolint:gomnd
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
 // SpaceHomepage provides the page ID, no. of children and created time for the given Space's homepage.
 func (c *Client) SpaceHomepage(spaceKey string) (string, int, string, error) {
 	path := fmt.Sprintf("space?spaceKey=%s&expand=homepage.children.page,homepage.history", spaceKey)

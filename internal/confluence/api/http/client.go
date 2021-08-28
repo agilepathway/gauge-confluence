@@ -48,6 +48,16 @@ func (c *Client) PutJSON(path string, requestBody interface{}) error {
 	return c.httpPut(path, b)
 }
 
+// PostJSON sends an HTTP POST request with the given URL path and request body
+func (c *Client) PostJSON(path string, requestBody interface{}) error {
+	b, err := json.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+
+	return c.httpPost(path, b)
+}
+
 // DeleteContent deletes the Confluence content with the given contentID
 // See e.g. https://developer.atlassian.com/server/confluence/confluence-rest-api-examples/#delete-a-page
 func (c *Client) DeleteContent(contentID string) error {
@@ -80,7 +90,7 @@ func (c *Client) httpGet(path string) ([]byte, error) {
 	}
 
 	if response.StatusCode > 299 { //nolint: gomnd
-		err = fmt.Errorf("HTTP response error: %d %s", response.StatusCode, body)
+		err = newRequestError(response.StatusCode, string(body))
 	}
 
 	return body, err
@@ -107,10 +117,37 @@ func (c *Client) httpPut(path string, requestBody []byte) error {
 	}
 
 	if response.StatusCode > 299 { //nolint: gomnd
-		err = fmt.Errorf("HTTP response error: %d %s", response.StatusCode, responseBody)
+		return newRequestError(response.StatusCode, string(responseBody))
 	}
 
-	return err
+	return nil
+}
+
+func (c *Client) httpPost(path string, requestBody []byte) error {
+	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
+	req, _ := http.NewRequest("POST", url, bytes.NewReader(requestBody))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Add("Authorization", "Basic "+c.basicAuth())
+
+	response, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if response.Body != nil {
+		defer response.Body.Close() //nolint: errcheck
+	}
+
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode > 299 { //nolint: gomnd
+		return newRequestError(response.StatusCode, string(responseBody))
+	}
+
+	return nil
 }
 
 func (c *Client) httpDelete(path string) error {
@@ -133,8 +170,8 @@ func (c *Client) httpDelete(path string) error {
 	}
 
 	if response.StatusCode != 204 { //nolint: gomnd
-		err = fmt.Errorf("HTTP response error: %d %s", response.StatusCode, responseBody)
+		return newRequestError(response.StatusCode, string(responseBody))
 	}
 
-	return err
+	return nil
 }

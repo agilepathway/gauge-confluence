@@ -75,6 +75,39 @@ func (c *Client) httpGet(path string) ([]byte, error) {
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("Authorization", "Basic "+c.basicAuth())
 
+	return c.do(req)
+}
+
+func (c *Client) httpPut(path string, requestBody []byte) error {
+	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
+	req, _ := http.NewRequest("PUT", url, bytes.NewReader(requestBody))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Add("Authorization", "Basic "+c.basicAuth())
+	_, err := c.do(req)
+
+	return err
+}
+
+func (c *Client) httpPost(path string, requestBody []byte) error {
+	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
+	req, _ := http.NewRequest("POST", url, bytes.NewReader(requestBody))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Add("Authorization", "Basic "+c.basicAuth())
+	_, err := c.do(req)
+
+	return err
+}
+
+func (c *Client) httpDelete(path string) error {
+	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
+	req, _ := http.NewRequest("DELETE", url, nil)
+	req.Header.Add("Authorization", "Basic "+c.basicAuth())
+	_, err := c.do(req)
+
+	return err
+}
+
+func (c *Client) do(req *http.Request) ([]byte, error) {
 	response, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -94,84 +127,4 @@ func (c *Client) httpGet(path string) ([]byte, error) {
 	}
 
 	return body, err
-}
-
-func (c *Client) httpPut(path string, requestBody []byte) error {
-	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
-	req, _ := http.NewRequest("PUT", url, bytes.NewReader(requestBody))
-	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("Authorization", "Basic "+c.basicAuth())
-
-	response, err := c.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if response.Body != nil {
-		defer response.Body.Close() //nolint: errcheck
-	}
-
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-
-	if response.StatusCode > 299 { //nolint: gomnd
-		return newRequestError(response.StatusCode, string(responseBody))
-	}
-
-	return nil
-}
-
-func (c *Client) httpPost(path string, requestBody []byte) error {
-	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
-	req, _ := http.NewRequest("POST", url, bytes.NewReader(requestBody))
-	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-	req.Header.Add("Authorization", "Basic "+c.basicAuth())
-
-	response, err := c.httpClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	if response.Body != nil {
-		defer response.Body.Close() //nolint: errcheck
-	}
-
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-
-	if response.StatusCode > 299 { //nolint: gomnd
-		return newRequestError(response.StatusCode, string(responseBody))
-	}
-
-	return nil
-}
-
-func (c *Client) httpDelete(path string) error {
-	url := fmt.Sprintf("%s/%s", c.restEndpoint, path)
-	req, _ := http.NewRequest("DELETE", url, nil)
-	req.Header.Add("Authorization", "Basic "+c.basicAuth())
-	response, err := c.httpClient.Do(req)
-
-	if err != nil {
-		return err
-	}
-
-	if response.Body != nil {
-		defer response.Body.Close() //nolint: errcheck
-	}
-
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-
-	if response.StatusCode != 204 { //nolint: gomnd
-		return newRequestError(response.StatusCode, string(responseBody))
-	}
-
-	return nil
 }

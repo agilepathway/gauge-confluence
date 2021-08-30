@@ -61,6 +61,11 @@ public class Confluence {
         ScenarioDataStore.put(DRY_RUN_MODE, true);
     }
 
+    @Step("Space does not exist")
+    public void assertSpaceDoesNotExist() {
+        assertThat(ConfluenceClient.doesSpaceExist(getScenarioSpaceKey())).isFalse();
+    }
+
     @Step("Published pages are: <table>")
     public void assertPublishedPages(Table expectedPages) throws Exception {
         int expectedTotal = expectedPages.getTableRows().size();

@@ -41,11 +41,15 @@ Tags: create-space-manually
 The absence of the "create-space-manually" tag means the Confluence Space does not
 exist for this scenario
 
+* Space does not exist
+
 * Activate dry run mode
 
 * Publish "1" specs to Confluence
 
 * Output contains "Dry run finished successfully"
+
+* Space does not exist
 
 
 __________________________________________________________________________________________

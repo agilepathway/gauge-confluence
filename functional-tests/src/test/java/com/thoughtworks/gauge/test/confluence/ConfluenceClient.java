@@ -24,6 +24,15 @@ public class ConfluenceClient {
         return jsonResponse.getJSONObject("homepage").getString("id");
     }
 
+    public static boolean doesSpaceExist(String spaceKey) {
+        try {
+            sendConfluenceRequest(getSpaceRequest(spaceKey));
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
     public static void deleteSpace(String spaceKey) {
         sendConfluenceRequest(deleteSpaceRequest(spaceKey));
     }
@@ -90,6 +99,13 @@ public class ConfluenceClient {
         HttpRequest.Builder builder = baseConfluenceRequest();
         String getAllPagesURL = String.format("%1$s?spaceKey=%2$s&type=page&expand=ancestors", baseContentAPIURL(), spaceKey);
         builder.uri(URI.create(getAllPagesURL));
+        return builder.build();
+    }
+
+    private static HttpRequest getSpaceRequest(String spaceKey) {
+        HttpRequest.Builder builder = baseConfluenceRequest();
+        String getSpaceURL = String.format("%1$s/%2$s", baseContentAPIURL(), spaceKey);
+        builder.uri(URI.create(getSpaceURL));
         return builder.build();
     }
 

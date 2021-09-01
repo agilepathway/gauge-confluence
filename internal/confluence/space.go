@@ -6,6 +6,7 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+	"github.com/agilepathway/gauge-confluence/internal/git"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
@@ -95,7 +96,21 @@ func (s *space) createIfDoesNotAlreadyExist() (err error) {
 
 	logger.Infof(true, "Space with key %s does not already exist, creating it ...", s.key)
 
-	return s.apiClient.CreateSpace(s.key)
+	spaceName, err := s.name()
+	if err != nil {
+		return err
+	}
+
+	return s.apiClient.CreateSpace(s.key, spaceName)
+}
+
+func (s *space) name() (string, error) {
+	gitRemoteURLPath, err := git.RemoteURLPath()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath), nil
 }
 
 func (s *space) exists() (bool, error) {

@@ -55,3 +55,23 @@ func TestBuildGitWebURL(t *testing.T) {
 		}
 	}
 }
+
+var parseURLPathTests = []struct { //nolint:gochecknoglobals
+	input    string
+	expected string
+}{
+	{"http://github.com/example-user/example-repo", "example-user/example-repo"},
+	{"http://github.com:8080/example-user/example-repo", "example-user/example-repo"},
+	{"http://example.com/example-user/example-repo", "example-user/example-repo"},
+	{"https://example.com/example-user/example-repo", "example-user/example-repo"},
+	{"https://example.com/example-user/example-repo/nested", "example-user/example-repo/nested"},
+}
+
+func TestParsePathFromURL(t *testing.T) {
+	for _, tt := range parseURLPathTests {
+		actual, _ := parseURLPath(tt.input)
+		if tt.expected != actual {
+			t.Errorf("parsePathFromURL(%s): expected %s, actual %s", tt.input, tt.expected, actual)
+		}
+	}
+}

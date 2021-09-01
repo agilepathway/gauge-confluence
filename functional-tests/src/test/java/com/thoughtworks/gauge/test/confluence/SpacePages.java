@@ -53,4 +53,9 @@ public class SpacePages {
         return jsonPages.length();
     }
 
+    @Override
+    public String toString() {
+        return jsonPages.toString(4);
+    }
+
 }

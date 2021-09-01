@@ -12,4 +12,4 @@ These specs are just helper functions - they do not document or exercise the Gau
 * Delete all spaces named "Change me to the name of the space you want to delete"
 
 ## Print space content
-* Print content for space with key "Change me to the name of the space you want to print the contents of"
+* Print space with key "Change me to the name of the space you want to print the contents of"

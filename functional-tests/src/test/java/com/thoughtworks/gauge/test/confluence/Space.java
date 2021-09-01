@@ -13,5 +13,10 @@ public class Space {
     public String getName() {
         return jsonSpace.getString("name");
     }
+
+    @Override
+    public String toString() {
+        return jsonSpace.toString(4);
+    }
     
 }

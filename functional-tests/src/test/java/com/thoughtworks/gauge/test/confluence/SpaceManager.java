@@ -27,10 +27,10 @@ public class SpaceManager {
         }
     }
 
-    @Step("Print content for space with key <space key>")
-    public void getContentForSpace(String spaceKey) {
-        JSONArray content = ConfluenceClient.getAllPages(spaceKey);
-        System.out.println(content);
+    @Step("Print space with key <space key>")
+    public void printPagesForSpace(String spaceKey) {
+        System.out.println(new Space(spaceKey));
+        System.out.println(new SpacePages(spaceKey));
     }
 
     private void deleteSpaceIfNamed(JSONObject sp, String spaceName) {

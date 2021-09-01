@@ -7,3 +7,5 @@
 * Publish "1" specs to Confluence
 
 * Specs "did" get published
+
+* Space has name "Gauge specs for https://github.com/agilepathway/gauge-confluence"

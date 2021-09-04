@@ -251,6 +251,12 @@ public abstract class GaugeProject {
         if (Confluence.isDryRun()) {
             envVars.put("DRY_RUN", "true");
         }
+        if (Confluence.getConfluenceUsernameFromScenarioDataStore() != null) {
+            envVars.put("CONFLUENCE_USERNAME", Confluence.getConfluenceUsernameFromScenarioDataStore());
+        }
+        if (Confluence.getConfluenceTokenFromScenarioDataStore() != null) {
+            envVars.put("CONFLUENCE_TOKEN", Confluence.getConfluenceTokenFromScenarioDataStore());
+        }
         boolean success = executeGaugeCommand(args, envVars);
         return new ExecutionSummary(String.join(" ", args), success, lastProcessStdout, lastProcessStderr);
     }

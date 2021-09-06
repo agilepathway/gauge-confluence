@@ -6,6 +6,7 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+	"github.com/agilepathway/gauge-confluence/internal/git"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
@@ -25,6 +26,11 @@ func newSpace(key string, apiClient api.Client) space {
 }
 
 func (s *space) setup() error {
+	err := s.createIfDoesNotAlreadyExist()
+	if err != nil {
+		return err
+	}
+
 	h, err := newHomepage(s.key, s.apiClient)
 	if err != nil {
 		return err
@@ -76,6 +82,39 @@ func (s *space) setup() error {
 	}
 
 	return nil
+}
+
+func (s *space) createIfDoesNotAlreadyExist() (err error) {
+	spaceExists, err := s.exists()
+	if err != nil {
+		return err
+	}
+
+	if spaceExists {
+		return nil
+	}
+
+	logger.Infof(true, "Space with key %s does not already exist, creating it ...", s.key)
+
+	spaceName, err := s.name()
+	if err != nil {
+		return err
+	}
+
+	return s.apiClient.CreateSpace(s.key, spaceName)
+}
+
+func (s *space) name() (string, error) {
+	gitRemoteURLPath, err := git.RemoteURLPath()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath), nil
+}
+
+func (s *space) exists() (bool, error) {
+	return s.apiClient.DoesSpaceExist(s.key)
 }
 
 func (s *space) isBlank() (bool, error) {

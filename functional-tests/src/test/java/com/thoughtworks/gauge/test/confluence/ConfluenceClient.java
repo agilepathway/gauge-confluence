@@ -24,6 +24,15 @@ public class ConfluenceClient {
         return jsonResponse.getJSONObject("homepage").getString("id");
     }
 
+    public static boolean doesSpaceExist(String spaceKey) {
+        try {
+            sendConfluenceRequest(getSpaceRequest(spaceKey));
+            return true;
+        } catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
     public static void deleteSpace(String spaceKey) {
         sendConfluenceRequest(deleteSpaceRequest(spaceKey));
     }
@@ -32,15 +41,28 @@ public class ConfluenceClient {
         return getResults(getAllSpacesRequest());
     }
 
+    public static JSONObject getSpace(String spaceKey) {
+        return getJSONResponse(getSpaceRequest(spaceKey));
+    }
+
+    public static JSONObject getSpaceWithAllPages(String spaceKey) {
+        return getJSONResponse(getAllPagesRequest(spaceKey));
+    }
+
     public static JSONArray getAllPages(String spaceKey) {
         return getResults(getAllPagesRequest(spaceKey));
     }
+
+    public static JSONObject getJSONResponse(HttpRequest request) {
+        HttpResponse<String> rawResponse = sendConfluenceRequest(request);
+        return new JSONObject(rawResponse.body());
+    }
  
     public static JSONArray getResults(HttpRequest request) {
-        HttpResponse<String> rawResponse = sendConfluenceRequest(request);
-        JSONObject jsonResponse = new JSONObject(rawResponse.body());
+        JSONObject jsonResponse = getJSONResponse(request);
         return (JSONArray) jsonResponse.get("results");
     }
+
     public static void createPage(String spaceKey) {
         sendConfluenceRequest(createPageRequest(spaceKey));
     }
@@ -90,6 +112,13 @@ public class ConfluenceClient {
         HttpRequest.Builder builder = baseConfluenceRequest();
         String getAllPagesURL = String.format("%1$s?spaceKey=%2$s&type=page&expand=ancestors", baseContentAPIURL(), spaceKey);
         builder.uri(URI.create(getAllPagesURL));
+        return builder.build();
+    }
+
+    private static HttpRequest getSpaceRequest(String spaceKey) {
+        HttpRequest.Builder builder = baseConfluenceRequest();
+        String getSpaceURL = String.format("%1$s/%2$s", baseSpaceAPIURL(), spaceKey);
+        builder.uri(URI.create(getSpaceURL));
         return builder.build();
     }
 

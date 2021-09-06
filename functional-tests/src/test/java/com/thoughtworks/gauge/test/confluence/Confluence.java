@@ -61,14 +61,25 @@ public class Confluence {
         ScenarioDataStore.put(DRY_RUN_MODE, true);
     }
 
+    @Step("Space does not exist")
+    public void assertSpaceDoesNotExist() {
+        assertThat(ConfluenceClient.doesSpaceExist(getScenarioSpaceKey())).isFalse();
+    }
+
+    @Step("Space has name <name>")
+    public void assertSpaceHasName(String name) {
+        Space space = new Space(getScenarioSpaceKey());
+        assertThat(space.getName()).isEqualTo(name);
+    }
+
     @Step("Published pages are: <table>")
     public void assertPublishedPages(Table expectedPages) throws Exception {
         int expectedTotal = expectedPages.getTableRows().size();
         assertConsoleSuccessOutput(expectedTotal - 1); // don't count the homepage as we don't publish it
-        Space space = new Space(getScenarioSpaceKey());
-        assertThat(space.totalPages()).isEqualTo(expectedTotal);
+        SpacePages spacePages = new SpacePages(getScenarioSpaceKey());
+        assertThat(spacePages.total()).isEqualTo(expectedTotal);
         for (TableRow row : expectedPages.getTableRows()) {
-            String actualParentPageTitle = space.getParentPageTitle(row.getCell("title"));
+            String actualParentPageTitle = spacePages.getParentPageTitle(row.getCell("title"));
             assertThat(actualParentPageTitle).isEqualTo(row.getCell("parent"));
         }
     }
@@ -76,13 +87,13 @@ public class Confluence {
     @Step("Specs <did|did not> get published")
     public void didPublishingOccur(String didPublishingOccur) throws IOException {
         boolean publishingOccurred = (didPublishingOccur.equalsIgnoreCase("did"));
-        Space space = new Space(getScenarioSpaceKey());
+        SpacePages spacePages = new SpacePages(getScenarioSpaceKey());
         if (publishingOccurred) {
             new Console().outputContains("Success: published");
-            assertThat(space.totalPages()).isGreaterThan(1);
+            assertThat(spacePages.total()).isGreaterThan(1);
         } else {
             new Console().outputDoesNotContain("Success: published");
-            assertThat(space.totalPages()).isEqualTo(1);
+            assertThat(spacePages.total()).isEqualTo(1);
         }
     }
 

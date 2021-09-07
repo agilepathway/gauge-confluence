@@ -22,6 +22,8 @@ public class Confluence {
     private static final String SCENARIO_SPACE_NAME = "Space";
     private static final String SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME = "confluence-space-homepage-id-key";
     private static final String DRY_RUN_MODE = "dry-run-mode";
+    private static final String CONFLUENCE_USERNAME = "confluence-username";
+    private static final String CONFLUENCE_TOKEN = "confluence-token";
 
     public static String getScenarioSpaceKey() {
         return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), "");
@@ -33,6 +35,14 @@ public class Confluence {
 
     public static boolean isDryRun() {
         return (boolean) ScenarioDataStore.get(DRY_RUN_MODE);
+    }
+
+    public static String getConfluenceUsernameFromScenarioDataStore() {
+        return (String) ScenarioDataStore.get(CONFLUENCE_USERNAME);
+    }
+
+    public static String getConfluenceTokenFromScenarioDataStore() {
+        return (String) ScenarioDataStore.get(CONFLUENCE_TOKEN);
     }
 
     @BeforeScenario
@@ -51,6 +61,12 @@ public class Confluence {
         ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
     }
 
+    @AfterScenario
+    public void setConfluenceUsernameAndTokenFromEnvVar() {
+        ScenarioDataStore.remove(CONFLUENCE_USERNAME);
+        ScenarioDataStore.remove(CONFLUENCE_TOKEN);
+    }
+
     @AfterScenario(tags = {"create-space-manually"})
     public void afterScenario() {
         ConfluenceClient.deleteSpace(getScenarioSpaceKey());
@@ -59,6 +75,12 @@ public class Confluence {
     @Step("Activate dry run mode")
     public void activateDryRunMode() {
         ScenarioDataStore.put(DRY_RUN_MODE, true);
+    }
+
+    @Step("Use Confluence user who does not have permission to create space")
+    public void useConfluenceUserWhoDoesNotHavePermissionToCreateSpace() {
+        ScenarioDataStore.put(CONFLUENCE_USERNAME, System.getenv("CONFLUENCE_USERNAME_WITHOUT_CREATE_SPACE"));
+        ScenarioDataStore.put(CONFLUENCE_TOKEN, System.getenv("CONFLUENCE_TOKEN_WITHOUT_CREATE_SPACE"));
     }
 
     @Step("Space does not exist")

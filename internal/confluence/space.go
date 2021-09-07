@@ -5,7 +5,9 @@ import (
 	"path/filepath"
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
+	"github.com/agilepathway/gauge-confluence/internal/confluence/api/http"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
+	"github.com/agilepathway/gauge-confluence/internal/env"
 	"github.com/agilepathway/gauge-confluence/internal/git"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
@@ -101,7 +103,24 @@ func (s *space) createIfDoesNotAlreadyExist() (err error) {
 		return err
 	}
 
-	return s.apiClient.CreateSpace(s.key, spaceName)
+	return s.createSpace(s.key, spaceName)
+}
+
+func (s *space) createSpace(key, name string) error {
+	err := s.apiClient.CreateSpace(key, name)
+
+	if err != nil {
+		e, ok := err.(*http.RequestError)
+		if ok && e.StatusCode == 403 { //nolint:gomnd
+			return fmt.Errorf("the Confluence user %s does not have permission to create the Confluence Space. "+
+				"Either rerun the plugin with a user who does have permissions to create the Space, "+
+				"or get someone to create the Space manually and then run the plugin again. "+
+				"Also check the password or token you supplied for the Confluence user is correct",
+				env.GetRequired("CONFLUENCE_USERNAME"))
+		}
+	}
+
+	return err
 }
 
 func (s *space) name() (string, error) {

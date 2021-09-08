@@ -94,6 +94,12 @@ public class Confluence {
         assertThat(space.getName()).isEqualTo(name);
     }
 
+    @Step("Space has description <description>")
+    public void assertSpaceHasDescription(String description) {
+        Space space = new Space(getScenarioSpaceKey());
+        assertThat(space.getDescription()).isEqualTo(description);
+    }
+
     @Step("Published pages are: <table>")
     public void assertPublishedPages(Table expectedPages) throws Exception {
         int expectedTotal = expectedPages.getTableRows().size();

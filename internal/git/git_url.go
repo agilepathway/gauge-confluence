@@ -10,11 +10,22 @@ import (
 // copied from https://github.com/go-git/go-git/blob/bf3471db54b0255ab5b159005069f37528a151b7/internal/url/url.go#L9
 var scpLikeURIRegExp = regexp.MustCompile(`^(?:(?P<user>[^@]+)@)?(?P<host>[^:\s]+):(?:(?P<port>[0-9]{1,5})(?:\/|:))?(?P<path>[^\\].*\/[^\\].*)$`) //nolint:lll
 
+// WebURL provides the web URL of the remote Git repository.
+func WebURL() (string, error) {
+	remoteGitURL, err := discoverRemoteGitURL()
+
+	if err != nil {
+		return "", err
+	}
+
+	return buildGitWebURL(remoteGitURL)
+}
+
 // RemoteURLPath provides the path part of the remote Git URL.
 // It does not include the slash at the beginning of the path.
 // e.g. user-or-org/project
 func RemoteURLPath() (string, error) {
-	gitWebURL, err := discoverGitWebURL()
+	gitWebURL, err := WebURL()
 	if err != nil {
 		return "", err
 	}
@@ -24,7 +35,7 @@ func RemoteURLPath() (string, error) {
 
 // SpecGitURL gives the remote Git URL (e.g. on GitHub, GitLab, Bitbucket etc) for a spec file
 func SpecGitURL(absoluteSpecPath, projectRoot string) string {
-	gitWebURL, err := discoverGitWebURL()
+	gitWebURL, err := WebURL()
 
 	if err != nil {
 		fmt.Println(err)
@@ -50,16 +61,6 @@ func parseURLPath(s string) (string, error) {
 	}
 
 	return strings.TrimPrefix(u.Path, "/"), nil
-}
-
-func discoverGitWebURL() (string, error) {
-	remoteGitURL, err := discoverRemoteGitURL()
-
-	if err != nil {
-		return "", err
-	}
-
-	return buildGitWebURL(remoteGitURL)
 }
 
 // buildGitWebURL constructs the publicly accessible Git web URL from a Git remote URL.

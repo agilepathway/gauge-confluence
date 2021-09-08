@@ -98,16 +98,21 @@ func (s *space) createIfDoesNotAlreadyExist() (err error) {
 
 	logger.Infof(true, "Space with key %s does not already exist, creating it ...", s.key)
 
-	spaceName, err := s.name()
+	return s.createSpace()
+}
+
+func (s *space) createSpace() error {
+	name, err := s.name()
 	if err != nil {
 		return err
 	}
 
-	return s.createSpace(s.key, spaceName)
-}
+	description, err := s.description()
+	if err != nil {
+		return err
+	}
 
-func (s *space) createSpace(key, name string) error {
-	err := s.apiClient.CreateSpace(key, name)
+	err = s.apiClient.CreateSpace(s.key, name, description)
 
 	if err != nil {
 		e, ok := err.(*http.RequestError)
@@ -130,6 +135,20 @@ func (s *space) name() (string, error) {
 	}
 
 	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath), nil
+}
+
+func (s *space) description() (string, error) {
+	gitWebURL, err := git.WebURL()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("Gauge (https://gauge.org) specifications from %s, "+
+		"published automatically by the Gauge Confluence plugin tool "+
+		"(https://github.com/agilepathway/gauge-confluence) as living documentation.  "+
+		"Do not edit this Space manually.  "+
+		"You can use Confluence's Include Macro (https://confluence.atlassian.com/doc/include-page-macro-139514.html) "+
+		"to include these specifications in as many of your existing Confluence Spaces as you wish.", gitWebURL), nil
 }
 
 func (s *space) exists() (bool, error) {

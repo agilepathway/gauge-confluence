@@ -14,6 +14,7 @@ The `example-user/example-repo` comes from the [dummy Git remote URL config in t
 test framework code][1].  When users run the plugin the Space name will be taken from 
 the Git remote URL of the Git repository that the plugin is executed on.
 
+* Space has description "Gauge (https://gauge.org) specifications from https://github.com/example-user/example-repo, published automatically by the Gauge Confluence plugin tool (https://github.com/agilepathway/gauge-confluence) as living documentation.  Do not edit this Space manually.  You can use Confluence's Include Macro (https://confluence.atlassian.com/doc/include-page-macro-139514.html) to include these specifications in as many of your existing Confluence Spaces as you wish."
 
 ## If the Space does not already exist, the plugin needs to be run by a user with permissions to create it
 Tags: not-cloud

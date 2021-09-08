@@ -14,6 +14,10 @@ public class Space {
         return jsonSpace.getString("name");
     }
 
+    public String getDescription() {
+        return jsonSpace.getJSONObject("description").getJSONObject("plain").getString("value");
+    }
+
     @Override
     public String toString() {
         return jsonSpace.toString(4);

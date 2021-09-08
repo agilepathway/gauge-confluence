@@ -94,16 +94,32 @@ func (c *Client) DeletePage(pageID string) (err error) {
 }
 
 // CreateSpace creates a Confluence Space with the given key
-func (c *Client) CreateSpace(key, name string) error {
+func (c *Client) CreateSpace(key, name, description string) error {
+	type Plain struct {
+		Value          string `json:"value"`
+		Representation string `json:"representation"`
+	}
+
+	type Description struct {
+		Plain `json:"plain"`
+	}
+
 	type Data struct {
-		Key  string `json:"key"`
-		Name string `json:"name"`
+		Key         string `json:"key"`
+		Name        string `json:"name"`
+		Description `json:"description"`
 	}
 
 	path := "space"
 	requestBody := Data{
 		key,
 		name,
+		Description{
+			Plain{
+				description,
+				"plain",
+			},
+		},
 	}
 
 	return c.httpClient.PostJSON(path, requestBody)

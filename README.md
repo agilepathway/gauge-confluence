@@ -84,7 +84,7 @@ If you find a problem with a particular version of Confluence, please
 
 ### Plugin setup
 
-There are four mandatory variables and two optional variables to configure, as either:
+There are three mandatory variables and three optional variables to configure, as either:
 
 1. environment variables
 
@@ -92,34 +92,27 @@ There are four mandatory variables and two optional variables to configure, as e
    [properties file](https://docs.gauge.org/configuration.html#local-configuration-of-gauge-default-properties),
    e.g. `<project_root>/env/default/anythingyoulike.properties`
 
-The four mandatory variables to configure are:
+The three mandatory variables to configure are:
 
 `CONFLUENCE_BASE_URL` e.g. `https://example.com/path-to-your-confluence-wiki` for Confluence Server, or `https://example.atlassian.net` for Confluence Cloud
 
 `CONFLUENCE_USERNAME`
 
-`CONFLUENCE_TOKEN`
+`CONFLUENCE_TOKEN` (This can either be a token or the password for the given Confluence username)
 
-`CONFLUENCE_SPACE_KEY`
-
-Use a dedicated, empty [Confluence Space](https://support.atlassian.com/confluence-cloud/docs/use-spaces-to-organize-your-work/)
-that will contain just the Gauge specifications and nothing else.  
-
-NB You can use [Confluence's include macro](https://confluence.atlassian.com/doc/include-page-macro-139514.html)
-to include the [page tree](https://confluence.atlassian.com/conf59/page-tree-macro-792499177.html) of Gauge Specs
-(that gets created by this plugin) in as many of your existing spaces as you like.
-
-The two optional variables to configure are:
+The three optional variables to configure are:
 
 `GAUGE_LOG_LEVEL`
 
 `DRY_RUN`
 
+`CONFLUENCE_SPACE_KEY`
+
+___
 The `GAUGE_LOG_LEVEL` variable can be set to `debug` or `info` (default is `info`).
 It controls the logging level both for the log files which are generated, _and_ what is logged to the console.
 NB the command line flag `--log-level` does not have any effect on the logging for this plugin.
-
-
+___
 **Setting the `DRY_RUN` variable to `true` means that running the plugin does not publish specs to Confluence.**
 
 Instead the plugin just checks that the specs are in a valid publishable state (e.g. that there are no duplicate
@@ -127,6 +120,17 @@ spec headings).
 This is very useful e.g. **in a CI/CD pipeline the plugin can run in dry run mode on feature branches and pull
 requests.** This ensures that the Gauge specs are always in good shape to be automatically published by the CI/CD pipeline upon any push to the trunk branch (e.g. upon a successful pull request merge).
 
+___
+If the `CONFLUENCE_SPACE_KEY` is not provided, the plugin will derive the Space key to be used based on the remote Git repository URL. This convention ensures that each Git repository has its own unique Confluence space key derived from it, i.e. a one to one mapping between each Git repository and its associated one to one space.
+
+The recommended way to run the plugin is not to provide the `CONFLUENCE_SPACE_KEY` variable, and instead to rely on the plugin to set it.  This is particularly useful in CI/CD for instance, as it removes the need to set the Space key manually before being able to run the plugin.
+
+One use case for setting the `CONFLUENCE_SPACE_KEY` is if for whatever reason you are unable to specify a Confluence user who has permission to create Confluence Spaces.  By setting the `CONFLUENCE_SPACE_KEY` to be an existing Space which someone (e.g. a Confluence admin) has created for you, you will still be able to run the plugin even without Confluence create space permissions.  In this case use a dedicated, empty [Confluence Space](https://support.atlassian.com/confluence-cloud/docs/use-spaces-to-organize-your-work/) that will contain just the Gauge specifications and nothing else.  
+
+NB You can use [Confluence's include macro](https://confluence.atlassian.com/doc/include-page-macro-139514.html)
+to include the [page tree](https://confluence.atlassian.com/conf59/page-tree-macro-792499177.html) of Gauge Specs
+(that gets created by this plugin) in as many of your existing spaces as you like.
+___
 
 ### Running the plugin (i.e. publishing specs to Confluence)
 

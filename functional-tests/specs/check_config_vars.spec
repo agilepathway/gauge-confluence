@@ -6,7 +6,6 @@ Tags: create-space-manually
    |CONFLUENCE_BASE_URL |
    |CONFLUENCE_USERNAME |
    |CONFLUENCE_TOKEN    |
-   |CONFLUENCE_SPACE_KEY|
 
 ## The plugin fails if required configuration variables are not set
 

@@ -1,6 +1,7 @@
 package git
 
 import (
+	"net/url"
 	"testing"
 )
 
@@ -50,7 +51,7 @@ var buildGitWebURLTests = []struct { //nolint:gochecknoglobals
 func TestBuildGitWebURL(t *testing.T) {
 	for _, tt := range buildGitWebURLTests {
 		actual, _ := buildGitWebURL(tt.input)
-		if tt.expected != actual {
+		if tt.expected != actual.String() {
 			t.Errorf("buildGitWebURL(%s): expected %s, actual %s", tt.input, tt.expected, actual)
 		}
 	}
@@ -69,7 +70,9 @@ var parseURLPathTests = []struct { //nolint:gochecknoglobals
 
 func TestParsePathFromURL(t *testing.T) {
 	for _, tt := range parseURLPathTests {
-		actual, _ := parseURLPath(tt.input)
+		inputURL, _ := url.Parse(tt.input)
+		actual, _ := parseURLPath(inputURL)
+
 		if tt.expected != actual {
 			t.Errorf("parsePathFromURL(%s): expected %s, actual %s", tt.input, tt.expected, actual)
 		}

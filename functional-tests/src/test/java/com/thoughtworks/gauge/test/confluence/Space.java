@@ -10,6 +10,10 @@ public class Space {
         this.jsonSpace = ConfluenceClient.getSpace(key);
     }
 
+    public String getKey() {
+        return jsonSpace.getString("key");
+    }
+
     public String getName() {
         return jsonSpace.getString("name");
     }

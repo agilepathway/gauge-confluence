@@ -26,6 +26,7 @@ public class Confluence {
     private static final String DRY_RUN_MODE = "dry-run-mode";
     private static final String CONFLUENCE_USERNAME = "confluence-username";
     private static final String CONFLUENCE_TOKEN = "confluence-token";
+    private static final String GIT_REMOTE_URL_KEY_NAME = "git-remote-url";
 
     public static String getScenarioSpaceKey() {
         return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), "");
@@ -45,6 +46,10 @@ public class Confluence {
 
     public static String getConfluenceTokenFromScenarioDataStore() {
         return (String) ScenarioDataStore.get(CONFLUENCE_TOKEN);
+    }
+
+    public static String getGitRemoteURLFromScenarioDataStore() {
+        return (String) ScenarioDataStore.get(GIT_REMOTE_URL_KEY_NAME);
     }
 
     @BeforeScenario

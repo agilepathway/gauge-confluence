@@ -27,7 +27,7 @@ public class Config {
 
     @Step("Add <type> Git config to project")
     public void addGitConfigToProject(String gitConfig) throws Exception {
-        getCurrentProject().addGitConfig(GitConfig.valueOf(gitConfig));
+        getCurrentProject().addGitConfig(GitConfig.valueOf(gitConfig).remoteOriginURL());
     }
 
     @Step("Simulate Git detached HEAD")

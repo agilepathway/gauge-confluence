@@ -4,6 +4,7 @@ import com.thoughtworks.gauge.Gauge;
 import com.thoughtworks.gauge.test.common.GaugeProject;
 import com.thoughtworks.gauge.test.common.Util;
 import com.thoughtworks.gauge.test.git.Config.GitConfig;
+import static com.thoughtworks.gauge.test.confluence.Confluence.getGitRemoteURLFromScenarioDataStore;
 
 public class ProjectBuilder {
 
@@ -11,7 +12,7 @@ public class ProjectBuilder {
     private String projName;
     private boolean deleteExampleSpec;
     private boolean remoteTemplate;
-    private boolean gitConfig;
+    private boolean addGitConfig;
 
     public ProjectBuilder() {
         this.remoteTemplate = false;
@@ -28,12 +29,12 @@ public class ProjectBuilder {
     }
 
     public ProjectBuilder withGitConfig() {
-        this.gitConfig = true;
+        this.addGitConfig = true;
         return this;
     }
 
     public ProjectBuilder withoutGitConfig() {
-        this.gitConfig = false;
+        this.addGitConfig = false;
         return this;
     }
 
@@ -49,8 +50,13 @@ public class ProjectBuilder {
                     + currentProject.getLastProcessStderr() + "\n\nSTDOUT:\n\n"
                     + currentProject.getLastProcessStdout());
         
-        if (this.gitConfig)
-            currentProject.addGitConfig(GitConfig.HTTPS);
+        if (this.addGitConfig) {
+            if (getGitRemoteURLFromScenarioDataStore() != null) {
+                currentProject.addGitConfig(getGitRemoteURLFromScenarioDataStore());
+            } else {
+                currentProject.addGitConfig(GitConfig.HTTPS.remoteOriginURL());
+            }
+        }
 
         if (this.deleteExampleSpec)
             currentProject.deleteSpec(Util.combinePath("specs", "example"));

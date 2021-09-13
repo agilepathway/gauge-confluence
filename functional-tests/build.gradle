@@ -29,7 +29,7 @@ languages.each {lang ->
         doFirst {
             gauge {
                 specsDir = 'specs'
-                inParallel = true
+                inParallel = false
             }
         }
     }

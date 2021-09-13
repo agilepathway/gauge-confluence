@@ -41,19 +41,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        confluence-version: [Cloud, Server]
+        confluence-version: [Cloud]
         include:
           - confluence-version: Cloud
             confluence-base-url: CONFLUENCE_CLOUD_BASE_URL
             confluence-username: CONFLUENCE_CLOUD_USERNAME
             confluence-token: CONFLUENCE_CLOUD_TOKEN
             gauge-tags: "!not-cloud"
-          - confluence-version: Server
-            confluence-base-url: CONFLUENCE_SERVER_BASE_URL
-            confluence-username: CONFLUENCE_SERVER_USERNAME
-            confluence-token: CONFLUENCE_SERVER_TOKEN
-            confluence-username-without-create-space: CONFLUENCE_SERVER_USERNAME_WITHOUT_CREATE_SPACE
-            confluence-token-without-create-space: CONFLUENCE_SERVER_TOKEN_WITHOUT_CREATE_SPACE
             
     steps:
       - name: Set up Go

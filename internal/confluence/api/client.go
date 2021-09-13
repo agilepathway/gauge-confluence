@@ -193,19 +193,23 @@ func (c *Client) IsSpaceModifiedSinceLastPublished(spaceKey string, lastPublishe
 }
 
 // WasPageCreatedAt returns true if the page was created at the given time.
-func (c *Client) WasPageCreatedAt(cqlTime string, pageID string) bool {
+func (c *Client) WasPageCreatedAt(cqlTime string, pageID string) (bool, error) {
 	query := goconfluence.SearchQuery{
 		CQL: fmt.Sprintf("created=\"%s\" AND ID=\"%s\"", cqlTime, pageID),
 	}
-	result, _ := c.goconfluenceClient.Search(query)
+	result, err := c.goconfluenceClient.Search(query)
+
+	if err != nil {
+		return false, err
+	}
 
 	for _, r := range result.Results {
 		if pageID == r.Content.ID {
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 // TotalPagesInSpace returns the number of pages (and blogposts) in the given Space

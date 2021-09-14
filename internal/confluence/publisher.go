@@ -25,10 +25,9 @@ type Publisher struct {
 
 // NewPublisher instantiates a new Publisher.
 func NewPublisher(m *gauge_messages.SpecDetails) Publisher {
-	spaceKey := env.GetRequired("CONFLUENCE_SPACE_KEY")
 	apiClient := api.NewClient()
 
-	return Publisher{apiClient: apiClient, space: newSpace(spaceKey, apiClient), specs: makeSpecsMap(m),
+	return Publisher{apiClient: apiClient, space: newSpace(apiClient), specs: makeSpecsMap(m),
 		dryRunPages: make(map[string]page)}
 }
 
@@ -91,7 +90,13 @@ func (p *Publisher) Publish(specPaths []string) (err error) {
 		return err
 	}
 
-	logger.Infof(true, "Success: published %d specs and directory pages to Confluence", len(p.space.publishedPages))
+	spaceName, err := p.space.name()
+	if err != nil {
+		return err
+	}
+
+	logger.Infof(true, "Success: published %d specs and directory pages to Confluence Space named: %s",
+		len(p.space.publishedPages), spaceName)
 
 	return nil
 }

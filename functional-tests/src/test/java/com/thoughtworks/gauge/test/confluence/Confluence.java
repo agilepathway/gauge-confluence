@@ -1,20 +1,22 @@
 package com.thoughtworks.gauge.test.confluence;
 
-import com.thoughtworks.gauge.BeforeScenario;
-import com.thoughtworks.gauge.Step;
-import com.thoughtworks.gauge.Table;
-import com.thoughtworks.gauge.TableRow;
-import com.thoughtworks.gauge.AfterScenario;
-import com.thoughtworks.gauge.datastore.ScenarioDataStore;
-import com.thoughtworks.gauge.test.implementation.Console;
-
+import static com.thoughtworks.gauge.test.confluence.ConfluenceClient.deleteSpace;
+import static com.thoughtworks.gauge.test.confluence.ConfluenceClient.doesSpaceExist;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.time.LocalTime;
-import java.util.concurrent.TimeUnit;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import com.thoughtworks.gauge.AfterScenario;
+import com.thoughtworks.gauge.BeforeScenario;
+import com.thoughtworks.gauge.Step;
+import com.thoughtworks.gauge.Table;
+import com.thoughtworks.gauge.TableRow;
+import com.thoughtworks.gauge.datastore.ScenarioDataStore;
+import com.thoughtworks.gauge.test.implementation.Console;
 
 public class Confluence {
 
@@ -24,6 +26,7 @@ public class Confluence {
     private static final String DRY_RUN_MODE = "dry-run-mode";
     private static final String CONFLUENCE_USERNAME = "confluence-username";
     private static final String CONFLUENCE_TOKEN = "confluence-token";
+    private static final String GIT_REMOTE_URL_KEY_NAME = "git-remote-url";
 
     public static String getScenarioSpaceKey() {
         return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), "");
@@ -45,31 +48,33 @@ public class Confluence {
         return (String) ScenarioDataStore.get(CONFLUENCE_TOKEN);
     }
 
+    public static String getGitRemoteURLFromScenarioDataStore() {
+        return (String) ScenarioDataStore.get(GIT_REMOTE_URL_KEY_NAME);
+    }
+
     @BeforeScenario
     public void setDryRunModeOff() {
         ScenarioDataStore.put(DRY_RUN_MODE, false);
     }
 
-    @BeforeScenario
-    public void setSpaceKeyName() {
-        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
-    }
-
     @BeforeScenario(tags = {"create-space-manually"})
     public void beforeScenario() {
+        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, generateUniqueSpaceKeyName());
         String spaceHomepageID = ConfluenceClient.createSpace(getScenarioSpaceKey(), SCENARIO_SPACE_NAME);
         ScenarioDataStore.put(SCENARIO_SPACE_HOMEPAGE_ID_KEY_NAME, spaceHomepageID);
     }
 
-    @AfterScenario
-    public void setConfluenceUsernameAndTokenFromEnvVar() {
+    @AfterScenario()
+    public void afterScenario() {
+        if ((!getScenarioSpaceKey().isEmpty()) && doesSpaceExist(getScenarioSpaceKey())) {
+            deleteSpace(getScenarioSpaceKey());
+        }
         ScenarioDataStore.remove(CONFLUENCE_USERNAME);
         ScenarioDataStore.remove(CONFLUENCE_TOKEN);
     }
 
-    @AfterScenario(tags = {"create-space-manually"})
-    public void afterScenario() {
-        ConfluenceClient.deleteSpace(getScenarioSpaceKey());
+    public void setScenarioSpaceKeyName(String keyName) {
+        ScenarioDataStore.put(SCENARIO_SPACE_KEY_NAME, keyName);
     }
 
     @Step("Activate dry run mode")
@@ -92,6 +97,13 @@ public class Confluence {
     public void assertSpaceHasName(String name) {
         Space space = new Space(getScenarioSpaceKey());
         assertThat(space.getName()).isEqualTo(name);
+    }
+
+    @Step("Space has key <key>")
+    public void assertSpaceHasKey(String key) {
+        setScenarioSpaceKeyName(key);
+        Space space = new Space(getScenarioSpaceKey());
+        assertThat(space.getKey()).isEqualTo(key);
     }
 
     @Step("Space has description <description>")

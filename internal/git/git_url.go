@@ -11,11 +11,11 @@ import (
 var scpLikeURIRegExp = regexp.MustCompile(`^(?:(?P<user>[^@]+)@)?(?P<host>[^:\s]+):(?:(?P<port>[0-9]{1,5})(?:\/|:))?(?P<path>[^\\].*\/[^\\].*)$`) //nolint:lll
 
 // WebURL provides the web URL of the remote Git repository.
-func WebURL() (string, error) {
+func WebURL() (*url.URL, error) {
 	remoteGitURL, err := discoverRemoteGitURL()
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	return buildGitWebURL(remoteGitURL)
@@ -51,36 +51,31 @@ func SpecGitURL(absoluteSpecPath, projectRoot string) string {
 		return ""
 	}
 
-	return gitWebURL + "/blob/" + branch + toURLFormat(relativeSpecPath)
+	return gitWebURL.String() + "/blob/" + branch + toURLFormat(relativeSpecPath)
 }
 
-func parseURLPath(s string) (string, error) {
-	u, err := url.Parse(s)
-	if err != nil {
-		return "", err
-	}
-
+func parseURLPath(u *url.URL) (string, error) {
 	return strings.TrimPrefix(u.Path, "/"), nil
 }
 
 // buildGitWebURL constructs the publicly accessible Git web URL from a Git remote URL.
-func buildGitWebURL(remoteGitURI string) (string, error) {
+func buildGitWebURL(remoteGitURI string) (*url.URL, error) {
 	url, err := url.Parse(remoteGitURI)
 
 	isStandardURL := err == nil && url != nil
 	if isStandardURL {
 		webURL := gitWebURLScheme(url.Scheme) + "://" + url.Host + strings.TrimSuffix(url.Path, ".git")
-		return webURL, nil
+		return url.Parse(webURL)
 	}
 
 	if isSCPStyleURI(remoteGitURI) {
 		_, host, port, path := findScpLikeComponents(remoteGitURI)
 		webURL := "https://" + hostAndPort(host, port) + "/" + strings.TrimSuffix(path, ".git")
 
-		return webURL, nil
+		return url.Parse(webURL)
 	}
 
-	return "", fmt.Errorf("could not parse Git URL %s", remoteGitURI)
+	return nil, fmt.Errorf("could not parse Git URL %s", remoteGitURI)
 }
 
 func hostAndPort(host, port string) string {

@@ -2,7 +2,10 @@ package confluence
 
 import (
 	"fmt"
+	"net/url"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api/http"
@@ -10,6 +13,7 @@ import (
 	"github.com/agilepathway/gauge-confluence/internal/env"
 	"github.com/agilepathway/gauge-confluence/internal/git"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
+	str "github.com/agilepathway/gauge-confluence/internal/strings"
 )
 
 type space struct {
@@ -23,12 +27,44 @@ type space struct {
 }
 
 // newSpace initialises a new space.
-func newSpace(key string, apiClient api.Client) space {
-	return space{key: key, publishedPages: make(map[string]page), apiClient: apiClient}
+func newSpace(apiClient api.Client) space {
+	return space{publishedPages: make(map[string]page), apiClient: apiClient}
 }
 
-func (s *space) setup() error {
-	err := s.createIfDoesNotAlreadyExist()
+func retrieveOrGenerateKey() (string, error) {
+	retrievedKey := os.Getenv("CONFLUENCE_SPACE_KEY")
+	if retrievedKey != "" {
+		return retrievedKey, nil
+	}
+
+	return generateKey()
+}
+
+func generateKey() (string, error) {
+	gitWebURL, err := git.WebURL()
+	if err != nil {
+		return "", err
+	}
+
+	return keyFmt(gitWebURL), nil
+}
+
+func keyFmt(u *url.URL) string {
+	hostAndPath := u.Host + u.Path
+	alphanumeric := str.StripNonAlphaNumeric(hostAndPath)
+
+	return strings.ToUpper(alphanumeric)
+}
+
+func (s *space) setup() error { // nolint:funlen
+	key, err := retrieveOrGenerateKey()
+	if err != nil {
+		return err
+	}
+
+	s.key = key
+
+	err = s.createIfDoesNotAlreadyExist()
 	if err != nil {
 		return err
 	}

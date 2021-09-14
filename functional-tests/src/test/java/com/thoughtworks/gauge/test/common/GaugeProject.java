@@ -5,7 +5,6 @@ import com.thoughtworks.gauge.TableRow;
 import com.thoughtworks.gauge.datastore.ScenarioDataStore;
 import com.thoughtworks.gauge.test.StepImpl;
 import com.thoughtworks.gauge.test.confluence.Confluence;
-import com.thoughtworks.gauge.test.git.Config.GitConfig;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -333,9 +332,9 @@ public abstract class GaugeProject {
         getSpecFile(specName).delete();
     }
 
-    public void addGitConfig(GitConfig gitConfig) throws Exception {
+    public void addGitConfig(String remoteOriginURL) throws Exception {
         executeGitCommand("init");
-        executeGitCommand("remote", "add", "origin", gitConfig.remoteOriginURL());
+        executeGitCommand("remote", "add", "origin", remoteOriginURL);
     }
 
     public void simulateGitDetachedHead() throws IOException {

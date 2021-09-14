@@ -69,7 +69,6 @@ func checkRequiredConfigVars() {
 	env.GetRequired("CONFLUENCE_BASE_URL")
 	env.GetRequired("CONFLUENCE_USERNAME")
 	env.GetRequired("CONFLUENCE_TOKEN")
-	env.GetRequired("CONFLUENCE_SPACE_KEY")
 }
 
 // providedSpecsPaths returns the specs paths passed in

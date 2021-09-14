@@ -1,0 +1,59 @@
+---
+name: Publish specs to Confluence test environment
+
+# This GitHub Actions workflow publishes the Gauge specifications for this
+# repository to our Confluence test instance, on every push to any branch
+# (both feature branches and the master branch).
+# There is also a separate workflow in another file which publishes the specs
+# to the Confluence production instance on every push to the master branch.
+
+
+on:  # yamllint disable-line rule:truthy
+  push:
+  pull_request:
+    branches:
+      # Branches from forks have the form 'user:branch-name' so we only run
+      # this job on pull_request events for branches that look like fork
+      # branches. Without this we would end up running this job twice for non
+      # forked PRs, once for the push and then once for opening the PR.
+      # See https://github.community/t/how-to-trigger-an-action-on-push-or-pull-request-but-not-both/16662/10
+      - "**:**"
+jobs:
+
+  publish-specs-to-test-environment:
+    name: Publish Specs to Confluence test environment
+    environment: publish-test
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Gauge
+        uses: getgauge/setup-gauge@master
+        with:
+          gauge-plugins: confluence
+
+      - name: Display Gauge version
+        run: |
+          gauge -v
+
+      - name: Dry Run publish specs
+        env:
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+          DRY_RUN: "true"
+        run: |
+          cd functional-tests
+          gauge docs confluence specs
+
+      - name: Publish specs to Confluence test environment
+        env:
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+        run: |
+          cd functional-tests
+          gauge docs confluence specs

@@ -16,9 +16,7 @@ Tags: create-space-manually
 
 * Activate dry run mode
 
-* Initialize an empty Gauge project
-
-* Publish Confluence Documentation for the current project with no <config variable> configured and assert "did" succeed
+* Publish Confluence Documentation with no <config variable> configured and assert "did" succeed
 
 * Output contains "Dry run finished successfully"
 

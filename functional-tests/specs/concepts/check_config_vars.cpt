@@ -2,7 +2,7 @@
 
 * Initialize an empty Gauge project
 
-* Publish Confluence Documentation for the current project with no <configVar> configured
+* Publish Confluence Documentation for the current project with no <configVar> configured and assert "did not" succeed
 
 * Output contains "Aborting: " <configVar> " is not set. Set it and try again."
 * Output contains "See https://github.com/agilepathway/gauge-confluence#plugin-setup"

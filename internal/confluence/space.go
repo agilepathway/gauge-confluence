@@ -56,7 +56,15 @@ func keyFmt(u *url.URL) string {
 	return strings.ToUpper(alphanumeric)
 }
 
+func (s *space) checkRequiredConfigVars() {
+	env.GetRequired("CONFLUENCE_BASE_URL")
+	env.GetRequired("CONFLUENCE_USERNAME")
+	env.GetRequired("CONFLUENCE_TOKEN")
+}
+
 func (s *space) setup() error { // nolint:funlen
+	s.checkRequiredConfigVars()
+
 	key, err := retrieveOrGenerateKey()
 	if err != nil {
 		return err

@@ -9,7 +9,6 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/gauge_messages"
 	"github.com/agilepathway/gauge-confluence/internal/confluence"
-	"github.com/agilepathway/gauge-confluence/internal/env"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
 	"github.com/agilepathway/gauge-confluence/util"
 	"google.golang.org/grpc"
@@ -47,7 +46,6 @@ func (h *handler) stopServer() {
 
 func main() {
 	logger.Initialize(loglevel())
-	checkRequiredConfigVars()
 
 	err := os.Chdir(projectRoot)
 	util.Fatal("failed to change directory to project root.", err)
@@ -63,12 +61,6 @@ func main() {
 	gauge_messages.RegisterDocumenterServer(server, h)
 	fmt.Printf("Listening on port:%d /n", l.Addr().(*net.TCPAddr).Port)
 	server.Serve(l) //nolint:errcheck,gosec
-}
-
-func checkRequiredConfigVars() {
-	env.GetRequired("CONFLUENCE_BASE_URL")
-	env.GetRequired("CONFLUENCE_USERNAME")
-	env.GetRequired("CONFLUENCE_TOKEN")
 }
 
 // providedSpecsPaths returns the specs paths passed in

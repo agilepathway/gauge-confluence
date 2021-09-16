@@ -1,0 +1,53 @@
+---
+name: Publish specs to Confluence production environment
+
+# This GitHub Actions workflow publishes the Gauge specifications for this
+# repository to our Confluence production instance on every push to the
+# master branch, e.g. upon a pull request being successfully merged to master.
+# There is also a separate workflow in another file which publishes the specs
+# to the Confluence test instance on every push to any branch (a feature branch
+# or master).
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - master
+jobs:
+
+  publish-specs-to-prod-environment:
+    name: Publish Specs to Confluence production environment
+    environment: publish-production
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install Gauge
+        uses: getgauge/setup-gauge@master
+        with:
+          gauge-plugins: confluence
+
+      - name: Display Gauge version
+        run: |
+          gauge -v
+
+      - name: Dry Run publish specs
+        env:
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+          DRY_RUN: "true"
+        run: |
+          cd functional-tests
+          gauge docs confluence specs
+
+      - name: Publish specs to Confluence production environment
+        env:
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+        run: |
+          cd functional-tests
+          gauge docs confluence specs

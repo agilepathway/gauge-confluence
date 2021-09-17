@@ -41,9 +41,6 @@ jobs:
 
       - name: Dry Run publish specs
         env:
-          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
-          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           DRY_RUN: "true"
         run: |
           cd functional-tests

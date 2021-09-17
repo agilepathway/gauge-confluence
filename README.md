@@ -120,6 +120,9 @@ spec headings).
 This is very useful e.g. **in a CI/CD pipeline the plugin can run in dry run mode on feature branches and pull
 requests.** This ensures that the Gauge specs are always in good shape to be automatically published by the CI/CD pipeline upon any push to the trunk branch (e.g. upon a successful pull request merge).
 
+The three config variables which are mandatory for actual publishing (`CONFLUENCE_BASE_URL`, `CONFLUENCE_USERNAME` and
+`CONFLUENCE_TOKEN`) do not need to be provided when doing a dry run.
+
 ___
 If the `CONFLUENCE_SPACE_KEY` is not provided, the plugin will derive the Space key to be used based on the remote Git repository URL. This convention ensures that each Git repository has its own unique Confluence space key derived from it, i.e. a one to one mapping between each Git repository and its associated one to one space.
 

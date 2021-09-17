@@ -20,11 +20,19 @@ type Client struct {
 
 // NewClient initialises a new Client.
 func NewClient() Client {
+	if env.GetBoolean("DRY_RUN") {
+		return dummyClient()
+	}
+
 	httpClient := http.NewClient(baseEndpoint(), username(), token())
 	goconfluenceClient, err := goconfluence.NewAPI(baseEndpoint(), username(), token())
 	util.Fatal("Error while creating Confluence API Client", err)
 
 	return Client{httpClient, goconfluenceClient}
+}
+
+func dummyClient() Client {
+	return Client{http.NewClient("", "", ""), nil}
 }
 
 // PublishPage publishes a page to Confluence as a child of the given parent page.

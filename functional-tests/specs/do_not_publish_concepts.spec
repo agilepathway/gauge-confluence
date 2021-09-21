@@ -1,5 +1,6 @@
 # Concepts are not published
-Tags: create-space-manually
+
+tags: create-space-manually
 
 ## Concepts are not published
 
@@ -12,11 +13,11 @@ Tags: create-space-manually
 
 * Published pages are:
 
-   |title     |parent    |
-   |----------|----------|
-   |Space Home|          |
-   |specs     |Space Home|
-   |A spec    |specs     |
+   |title                                         |parent                                        |
+   |----------------------------------------------|----------------------------------------------|
+   |Gauge specs for example-user/example-repo Home|                                              |
+   |specs                                         |Gauge specs for example-user/example-repo Home|
+   |A spec                                        |specs                                         |
 
 
 ## A directory that just contains concepts is not published
@@ -30,11 +31,11 @@ Tags: create-space-manually
 
 * Published pages are:
 
-   |title                |parent    |
-   |---------------------|----------|
-   |Space Home           |          |
-   |specs                |Space Home|
-   |A spec in a specs dir|specs     |
+   |title                                         |parent                                        |
+   |----------------------------------------------|----------------------------------------------|
+   |Gauge specs for example-user/example-repo Home|                                              |
+   |specs                                         |Gauge specs for example-user/example-repo Home|
+   |A spec in a specs dir                         |specs                                         |
 
 
 ## Nested directories that just contain concepts are not published
@@ -51,8 +52,8 @@ Tags: create-space-manually
 
 * Published pages are:
 
-   |title                |parent    |
-   |---------------------|----------|
-   |Space Home           |          |
-   |specs                |Space Home|
-   |A spec in a specs dir|specs     |
+   |title                                         |parent                                        |
+   |----------------------------------------------|----------------------------------------------|
+   |Gauge specs for example-user/example-repo Home|                                              |
+   |specs                                         |Gauge specs for example-user/example-repo Home|
+   |A spec in a specs dir                         |specs                                         |

@@ -1,5 +1,6 @@
 # Delete existing published specs before publishing
-Tags: create-space-manually
+
+tags: create-space-manually
 
 ## The plugin deletes all existing published specs before publishing
 It is safe to do this as before doing so we abort if the Space has been manually edited since the last publish.
@@ -18,8 +19,8 @@ plugin handles pagination correctly when deleting the specs on the second publis
 
 * Published pages are:
 
-   |title                         |parent      |
-   |------------------------------|------------|
-   |Space Home                    |            |
-   |specs                         |Space Home  |
-   |Another spec                  |specs       |
+   |title                                         |parent                                        |
+   |----------------------------------------------|----------------------------------------------|
+   |Gauge specs for example-user/example-repo Home|                                              |
+   |specs                                         |Gauge specs for example-user/example-repo Home|
+   |Another spec                                  |specs                                         |

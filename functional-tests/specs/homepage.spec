@@ -4,8 +4,6 @@
 
 * Publish "1" specs to Confluence
 
-* Space has key "GITHUBCOMEXAMPLEUSEREXAMPLEREPO"
-
 * Homepage has title "Gauge specs for example-user/example-repo Home"
 
 * Homepage contains "Do not edit this Space manually."

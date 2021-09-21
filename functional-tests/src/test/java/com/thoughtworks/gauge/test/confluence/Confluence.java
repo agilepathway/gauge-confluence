@@ -27,9 +27,10 @@ public class Confluence {
     private static final String CONFLUENCE_USERNAME = "confluence-username";
     private static final String CONFLUENCE_TOKEN = "confluence-token";
     private static final String GIT_REMOTE_URL_KEY_NAME = "git-remote-url";
+    private static final String DEFAULT_SCENARIO_SPACE_KEY = "GITHUBCOMEXAMPLEUSEREXAMPLEREPO";
 
     public static String getScenarioSpaceKey() {
-        return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), "");
+        return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), DEFAULT_SCENARIO_SPACE_KEY);
     }
 
     public static String getScenarioSpaceHomepageID() {

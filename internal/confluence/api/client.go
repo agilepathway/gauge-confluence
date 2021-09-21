@@ -35,8 +35,8 @@ func dummyClient() Client {
 	return Client{http.NewClient("", "", ""), nil}
 }
 
-// PublishPage publishes a page to Confluence as a child of the given parent page.
-func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID string, err error) {
+// CreatePage publishes a page to Confluence as a child of the given parent page.
+func (c *Client) CreatePage(spaceKey, title, body, parentPageID string) (pageID string, err error) {
 	requestContent := &goconfluence.Content{
 		Type:  "page",
 		Title: title,
@@ -63,6 +63,27 @@ func (c *Client) PublishPage(spaceKey, title, body, parentPageID string) (pageID
 	}
 
 	return responseContent.ID, nil
+}
+
+// UpdatePage updates an existing page in Confluence.
+func (c *Client) UpdatePage(spaceKey, pageID, title, body string, version int) (err error) {
+	requestContent := &goconfluence.Content{
+		Type:  "page",
+		ID:    pageID,
+		Title: title,
+		Body: goconfluence.Body{
+			Storage: goconfluence.Storage{
+				Value:          body,
+				Representation: "wiki",
+			},
+		},
+		Space:   goconfluence.Space{Key: spaceKey},
+		Version: &goconfluence.Version{Number: version},
+	}
+
+	_, err = c.goconfluenceClient.UpdateContent(requestContent)
+
+	return err
 }
 
 // DeleteAllPagesInSpaceExceptHomepage deletes all the pages in the given Space,
@@ -154,8 +175,8 @@ func (c *Client) DoesSpaceExist(spaceKey string) (bool, error) {
 }
 
 // SpaceHomepage provides the page ID, no. of children and created time for the given Space's homepage.
-func (c *Client) SpaceHomepage(spaceKey string) (string, int, string, error) {
-	path := fmt.Sprintf("space?spaceKey=%s&expand=homepage.children.page,homepage.history", spaceKey)
+func (c *Client) SpaceHomepage(spaceKey string) (string, int, string, int, error) {
+	path := fmt.Sprintf("space?spaceKey=%s&expand=homepage.children.page,homepage.history,homepage.version", spaceKey)
 
 	var homepageResponse struct {
 		Results []struct {
@@ -169,6 +190,9 @@ func (c *Client) SpaceHomepage(spaceKey string) (string, int, string, error) {
 						Size int `json:"size"`
 					} `json:"page"`
 				} `json:"children"`
+				Version struct {
+					Number int `json:"number"`
+				}
 			} `json:"homepage"`
 		} `json:"results"`
 	}
@@ -176,12 +200,12 @@ func (c *Client) SpaceHomepage(spaceKey string) (string, int, string, error) {
 	err := c.httpClient.GetJSON(path, &homepageResponse)
 
 	if err != nil {
-		return "", 0, "", err
+		return "", 0, "", 0, err
 	}
 
 	h := homepageResponse.Results[0].Homepage
 
-	return h.ID, h.Children.Page.Size, h.History.CreatedDate, nil
+	return h.ID, h.Children.Page.Size, h.History.CreatedDate, h.Version.Number, nil
 }
 
 // IsSpaceModifiedSinceLastPublished returns true if any page was modified since the last publish

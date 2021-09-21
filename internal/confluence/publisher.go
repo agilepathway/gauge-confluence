@@ -95,6 +95,11 @@ func (p *Publisher) Publish(specPaths []string) (err error) {
 		return err
 	}
 
+	err = p.space.homepage.publish()
+	if err != nil {
+		return err
+	}
+
 	logger.Infof(true, "Success: published %d specs and directory pages to Confluence Space named: %s",
 		len(p.space.publishedPages), spaceName)
 
@@ -166,7 +171,7 @@ func (p *Publisher) publishDirOrSpec(entry gauge.DirEntry) error {
 }
 
 func (p *Publisher) publishPage(pg page) (err error) {
-	publishedPageID, err := p.apiClient.PublishPage(p.space.key, pg.title, pg.body, pg.parentID)
+	publishedPageID, err := p.apiClient.CreatePage(p.space.key, pg.title, pg.body, pg.parentID)
 
 	if err != nil {
 		return err

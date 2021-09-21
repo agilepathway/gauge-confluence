@@ -142,6 +142,18 @@ public class Confluence {
                 String.format("Success: published %d specs and directory pages to Confluence", totalPages));
     }
 
+    @Step("Homepage contains <content>")
+    public void assertHomepageContains(String content) throws Exception {
+        Homepage homepage = new Space(getScenarioSpaceKey()).getHomepage();
+        assertThat(homepage.getBody()).contains(content);
+    }
+
+    @Step("Homepage has title <title>")
+    public void assertHomepageHasTitle(String title) throws Exception {
+        Homepage homepage = new Space(getScenarioSpaceKey()).getHomepage();
+        assertThat(homepage.getTitle()).isEqualTo(title);
+    }
+
     @Step("Manually add a page to the Confluence space")
     public void manuallyAddPageToConfluenceSpace() throws InterruptedException {
         // the page needs to be added at a later minute than when the last publish ran

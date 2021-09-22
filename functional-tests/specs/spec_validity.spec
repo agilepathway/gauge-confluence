@@ -1,5 +1,6 @@
 # Spec validity for publishing to Confluence
-Tags: create-space-manually
+
+tags: create-space-manually
 
 ## Specs without a heading are not published to Confluence
 
@@ -13,11 +14,11 @@ Tags: create-space-manually
 
 * Published pages are:
 
-   |title     |parent    |
-   |----------|----------|
-   |Space Home|          |
-   |specs     |Space Home|
-   |Spec 1    |specs     |
-   |Spec 3    |specs     |
+   |title                                         |parent                                        |
+   |----------------------------------------------|----------------------------------------------|
+   |Gauge specs for example-user/example-repo Home|                                              |
+   |specs                                         |Gauge specs for example-user/example-repo Home|
+   |Spec 1                                        |specs                                         |
+   |Spec 3                                        |specs                                         |
 
 * Output contains "Skipping file: could not find a spec heading"

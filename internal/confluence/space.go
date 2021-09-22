@@ -77,7 +77,7 @@ func (s *space) setup() error { // nolint:funlen
 		return err
 	}
 
-	h, err := newHomepage(s.key, s.apiClient)
+	h, err := newHomepage(s)
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func (s *space) updateLastPublished() error {
 		LastPublished: time.Now().String(),
 	}
 
-	logger.Debugf(false, "updating last published version to: %d", s.lastPublished.Version+1)
+	logger.Debugf(false, "Updating last published version to: %d", s.lastPublished.Version+1)
 
 	return s.apiClient.SetContentProperty(s.homepage.id, time.LastPublishedPropertyKey, value, s.lastPublished.Version+1)
 }

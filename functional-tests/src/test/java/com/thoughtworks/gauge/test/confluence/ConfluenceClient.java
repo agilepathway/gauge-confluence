@@ -117,7 +117,7 @@ public class ConfluenceClient {
 
     private static HttpRequest getSpaceRequest(String spaceKey) {
         HttpRequest.Builder builder = baseConfluenceRequest();
-        String getSpaceURL = String.format("%1$s/%2$s?expand=description.plain", baseSpaceAPIURL(), spaceKey);
+        String getSpaceURL = String.format("%1$s/%2$s?expand=description.plain,homepage.body.view,homepage.version", baseSpaceAPIURL(), spaceKey);
         builder.uri(URI.create(getSpaceURL));
         return builder.build();
     }

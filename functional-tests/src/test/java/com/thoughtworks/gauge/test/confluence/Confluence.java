@@ -27,9 +27,10 @@ public class Confluence {
     private static final String CONFLUENCE_USERNAME = "confluence-username";
     private static final String CONFLUENCE_TOKEN = "confluence-token";
     private static final String GIT_REMOTE_URL_KEY_NAME = "git-remote-url";
+    private static final String DEFAULT_SCENARIO_SPACE_KEY = "GITHUBCOMEXAMPLEUSEREXAMPLEREPO";
 
     public static String getScenarioSpaceKey() {
-        return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), "");
+        return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), DEFAULT_SCENARIO_SPACE_KEY);
     }
 
     public static String getScenarioSpaceHomepageID() {
@@ -140,6 +141,24 @@ public class Confluence {
     private void assertConsoleSuccessOutput(int totalPages) throws IOException {
         new Console().outputContains(
                 String.format("Success: published %d specs and directory pages to Confluence", totalPages));
+    }
+
+    @Step("Homepage contains <content>")
+    public void assertHomepageContains(String content) throws Exception {
+        Homepage homepage = new Space(getScenarioSpaceKey()).getHomepage();
+        assertThat(homepage.getBody()).contains(content);
+    }
+
+    @Step("Homepage has title <title>")
+    public void assertHomepageHasTitle(String title) throws Exception {
+        Homepage homepage = new Space(getScenarioSpaceKey()).getHomepage();
+        assertThat(homepage.getTitle()).isEqualTo(title);
+    }
+
+    @Step("Homepage version number is <version>")
+    public void assertHomepageVersion(int version) throws Exception {
+        Homepage homepage = new Space(getScenarioSpaceKey()).getHomepage();
+        assertThat(homepage.getVersion()).isEqualTo(version);
     }
 
     @Step("Manually add a page to the Confluence space")

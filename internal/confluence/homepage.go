@@ -6,6 +6,7 @@ import (
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/confluence/time"
 	"github.com/agilepathway/gauge-confluence/internal/errors"
+	"github.com/agilepathway/gauge-confluence/internal/git"
 	"github.com/agilepathway/gauge-confluence/internal/logger"
 )
 
@@ -14,23 +15,73 @@ type homepage struct {
 	created   time.Time
 	childless bool
 	spaceKey  string
+	title     string
 	apiClient api.Client
+	version   int
 }
 
-func newHomepage(spaceKey string, a api.Client) (homepage, error) {
-	id, children, created, err := a.SpaceHomepage(spaceKey)
+func newHomepage(s *space) (homepage, error) {
+	a := s.apiClient
+	id, children, created, version, err := a.SpaceHomepage(s.key)
 	logger.Debugf(false, "Space homepage id: %s", id)
 	logger.Debugf(false, "Space homepage number of children: %d", children)
 	logger.Debugf(false, "Space homepage created: %v", created)
+	logger.Debugf(false, "Space homepage version: %d", version)
+
+	if err != nil {
+		return homepage{}, err
+	}
 
 	if id == "" {
 		return homepage{}, fmt.Errorf("the Confluence space with key %s has no homepage - "+
-			"add a homepage manually in Confluence to the space, then try again", spaceKey)
+			"add a homepage manually in Confluence to the space, then try again", s.key)
 	}
 
-	h := homepage{id: id, created: time.NewTime(created), childless: children == 0, spaceKey: spaceKey, apiClient: a}
+	title, err := title(s)
+
+	h := homepage{
+		id:        id,
+		created:   time.NewTime(created),
+		childless: children == 0,
+		spaceKey:  s.key,
+		title:     title,
+		version:   version,
+		apiClient: a}
 
 	return h, err
+}
+
+func (h *homepage) publish() error {
+	newVersion := h.version + 1
+	logger.Debugf(true, "Updating Space homepage to version %d ...", newVersion)
+
+	body, err := h.body()
+	if err != nil {
+		return err
+	}
+
+	return h.apiClient.UpdatePage(h.spaceKey, h.id, h.title, body, newVersion)
+}
+
+func title(s *space) (string, error) {
+	n, err := s.name()
+	return fmt.Sprintf("%s Home", n), err
+}
+
+func (h *homepage) body() (string, error) {
+	gitWebURL, err := git.WebURL()
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("\\\\ [Gauge|https://gauge.org] specifications from %s, "+
+		"published automatically by the "+
+		"[Gauge Confluence plugin tool|https://github.com/agilepathway/gauge-confluence] as living documentation.\\\\ \\\\"+
+		"Do not edit this Space manually.\\\\ \\\\"+
+		"You can use "+
+		"[Confluence's Include Macro|https://confluence.atlassian.com/doc/include-page-macro-139514.html] "+
+		"to include these specifications in as many of your existing Confluence Spaces as you wish.\\\\ \\\\ \\\\%s",
+		gitWebURL, childrenMacro), nil
 }
 
 // cqlTimeOffset calculates the number of hours that CQL queries are to be offset (against UTC) by,

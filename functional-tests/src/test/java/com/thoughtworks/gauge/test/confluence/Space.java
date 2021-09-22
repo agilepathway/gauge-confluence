@@ -22,6 +22,10 @@ public class Space {
         return jsonSpace.getJSONObject("description").getJSONObject("plain").getString("value");
     }
 
+    public Homepage getHomepage() {
+        return new Homepage(jsonSpace.getJSONObject("homepage"));
+    }
+
     @Override
     public String toString() {
         return jsonSpace.toString(4);

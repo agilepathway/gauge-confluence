@@ -155,6 +155,12 @@ public class Confluence {
         assertThat(homepage.getTitle()).isEqualTo(title);
     }
 
+    @Step("Homepage version number is <version>")
+    public void assertHomepageVersion(int version) throws Exception {
+        Homepage homepage = new Space(getScenarioSpaceKey()).getHomepage();
+        assertThat(homepage.getVersion()).isEqualTo(version);
+    }
+
     @Step("Manually add a page to the Confluence space")
     public void manuallyAddPageToConfluenceSpace() throws InterruptedException {
         // the page needs to be added at a later minute than when the last publish ran

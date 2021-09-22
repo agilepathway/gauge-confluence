@@ -18,6 +18,10 @@ public class Homepage {
         return jsonHomepage.getJSONObject("body").getJSONObject("view").getString("value");
     }
 
+    public int getVersion() {
+        return jsonHomepage.getJSONObject("version").getInt("number");
+    }
+
     @Override
     public String toString() {
         return jsonHomepage.toString(4);

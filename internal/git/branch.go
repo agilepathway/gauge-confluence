@@ -3,10 +3,32 @@ package git
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
+const ciCommitBranchEnvVarName = "CI_COMMIT_BRANCH"
+
+// discoverCurrentBranch returns the current Git branch name.
+//
+// The Git branch name is derived from the CI_COMMIT_BRANCH
+// environment variable if the environment variable is present.
+//
+// This ensures that the Confluence plugin can discover the
+// current branch properly when running on GitLab CI (as GitLab
+// CI runs in detached HEAD mode when cloning or fetching from
+// Git, meaning that the branch cannot be dynamically derived
+// by the Confluence plugin).
+//
+// If the CI_COMMIT_BRANCH is not present then the branch is
+// derived dynamically from the local git config, returning an
+// error if it is not able to be derived.
 func discoverCurrentBranch() (string, error) {
+	ciCommitBranch, exists := os.LookupEnv(ciCommitBranchEnvVarName)
+	if exists {
+		return ciCommitBranch, nil
+	}
+
 	_, head, err := findHeadFile()
 	if err != nil {
 		return "", fmt.Errorf("there was a problem obtaining the HEAD file: %w", err)

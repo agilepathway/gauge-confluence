@@ -3,6 +3,7 @@ package git
 import (
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 )
 
@@ -48,5 +49,18 @@ func TestDetachedHead(t *testing.T) {
 
 	if errors.Is(err, expectedErr) {
 		t.Errorf("Unexpected error for input %v: %v", detachedHead, err)
+	}
+}
+
+func TestDiscoverCurrentBranch(t *testing.T) {
+	expected := "from-ci-commit-branch-env-var"
+	os.Setenv("CI_COMMIT_BRANCH", expected) //nolint
+
+	branchName, err := discoverCurrentBranch()
+
+	os.Unsetenv("CI_COMMIT_BRANCH") //nolint
+
+	if branchName != expected || err != nil {
+		t.Fatalf(`discoverCurrentBranch("") = %q, %v, want %s, nil`, branchName, err, expected)
 	}
 }

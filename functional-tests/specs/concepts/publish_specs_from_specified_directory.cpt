@@ -1,0 +1,7 @@
+# Publish <specs_dir> directory to Confluence: <table>
+
+* Initialize an empty Gauge project
+
+* Create specs <table>
+
+* Publish <specs_dir> directory to Confluence

@@ -5,6 +5,7 @@ import static com.thoughtworks.gauge.test.common.GaugeProject.getCurrentProject;
 import com.thoughtworks.gauge.Step;
 import com.thoughtworks.gauge.test.common.ExecutionSummary;
 import com.thoughtworks.gauge.test.common.ExecutionSummaryAssert;
+import com.thoughtworks.gauge.test.confluence.Confluence;
 
 public class Execution {
 
@@ -20,6 +21,12 @@ public class Execution {
 
     @Step("Publish Confluence Documentation for the current project")
     public void publishConfluenceDocumentationForCurrentProject() throws Exception {
+        assertOn(getCurrentProject().publishConfluenceDocumentation(), true);
+    }
+
+    @Step("Publish <specs_dir> directory to Confluence")
+    public void publishSpecsDirectoryToConfluence(String specsDir) throws Exception {
+        Confluence.setScenarioSpecsPath(specsDir);
         assertOn(getCurrentProject().publishConfluenceDocumentation(), true);
     }
 

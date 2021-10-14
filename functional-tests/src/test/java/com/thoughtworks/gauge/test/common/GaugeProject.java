@@ -261,7 +261,8 @@ public abstract class GaugeProject {
     }
 
     public ExecutionSummary publishConfluenceDocumentation(Map<String, String> envVars) throws Exception {
-        return publishConfluenceDocumentation(new String[] { "docs", "confluence", "specs/" }, envVars);
+        String specsPath = Confluence.getScenarioSpecsPath();
+        return publishConfluenceDocumentation(new String[] { "docs", "confluence", specsPath}, envVars);
     }
 
     public ExecutionSummary publishConfluenceDocumentationWithConfigVarUnset(String configVar) throws Exception {

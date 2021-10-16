@@ -2,8 +2,11 @@ package confluence
 
 import (
 	"path/filepath"
+	"strings"
 
+	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
+	"github.com/agilepathway/gauge-confluence/internal/logger"
 	"github.com/agilepathway/gauge-confluence/util"
 )
 
@@ -48,4 +51,14 @@ func newSpecPage(parentID string, spec Spec) (page, error) {
 
 func (p *page) isSpec() bool {
 	return !p.isDir
+}
+
+func (p *page) removeLineBreaks(apiClient api.Client) error {
+	content, err := apiClient.GetPage(p.id)
+	strippedContent := strings.ReplaceAll(content, "<br />", "")
+	logger.Debugf(true, strippedContent)
+
+	// update the page with the new content
+
+	return err
 }

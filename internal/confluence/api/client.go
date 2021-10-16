@@ -86,6 +86,32 @@ func (c *Client) UpdatePage(spaceKey, pageID, title, body string, version int) (
 	return err
 }
 
+// DeletePage deletes a page from Confluence
+func (c *Client) DeletePage(pageID string) (err error) {
+	return c.httpClient.DeleteContent(pageID)
+}
+
+// GetPage provides the contents of the Confluence page with the given page ID
+func (c *Client) GetPage(pageID string) (string, error) {
+	path := fmt.Sprintf("content/%s?expand=body.storage", pageID)
+
+	var pageResponse struct {
+		Body struct {
+			Storage struct {
+				Value string `json:"value"`
+			} `json:"storage"`
+		} `json:"body"`
+	}
+
+	err := c.httpClient.GetJSON(path, &pageResponse)
+
+	if err != nil {
+		return "", err
+	}
+
+	return pageResponse.Body.Storage.Value, nil
+}
+
 // DeleteAllPagesInSpaceExceptHomepage deletes all the pages in the given Space,
 // apart from the Space home page
 func (c *Client) DeleteAllPagesInSpaceExceptHomepage(spaceKey string, homepageID string) (err error) {
@@ -115,11 +141,6 @@ func (c *Client) DeleteAllPagesInSpaceExceptHomepage(spaceKey string, homepageID
 	}
 
 	return nil
-}
-
-// DeletePage deletes a page from Confluence
-func (c *Client) DeletePage(pageID string) (err error) {
-	return c.httpClient.DeleteContent(pageID)
 }
 
 // CreateSpace creates a Confluence Space with the given key

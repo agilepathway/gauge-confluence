@@ -130,6 +130,10 @@ func (s *space) setup() error { // nolint:funlen
 	return nil
 }
 
+func (s *space) isCloud() bool {
+	return true
+}
+
 func (s *space) createIfDoesNotAlreadyExist() (err error) {
 	spaceExists, err := s.exists()
 	if err != nil {
@@ -299,4 +303,23 @@ func (s *space) children(page page) []string {
 	}
 
 	return children
+}
+
+func (s *space) removeLineBreaksIfCloud() error {
+	if s.isCloud() {
+		return s.removeLineBreaksFromPublishedPages()
+	}
+
+	return nil
+}
+
+func (s *space) removeLineBreaksFromPublishedPages() error {
+	for _, pg := range s.publishedPages {
+		err := pg.removeLineBreaks(s.apiClient)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -28,6 +28,7 @@ public class Confluence {
     private static final String CONFLUENCE_TOKEN = "confluence-token";
     private static final String GIT_REMOTE_URL_KEY_NAME = "git-remote-url";
     private static final String DEFAULT_SCENARIO_SPACE_KEY = "GITHUBCOMEXAMPLEUSEREXAMPLEREPO";
+    private static final String SCENARIO_SPECS_PATH_KEY_NAME = "specs-path-key";
 
     public static String getScenarioSpaceKey() {
         return Objects.toString(ScenarioDataStore.get(SCENARIO_SPACE_KEY_NAME), DEFAULT_SCENARIO_SPACE_KEY);
@@ -51,6 +52,15 @@ public class Confluence {
 
     public static String getGitRemoteURLFromScenarioDataStore() {
         return (String) ScenarioDataStore.get(GIT_REMOTE_URL_KEY_NAME);
+    }
+
+    public static void setScenarioSpecsPath(String specsPath) {
+        ScenarioDataStore.put(SCENARIO_SPECS_PATH_KEY_NAME, specsPath);
+    }
+
+    public static String getScenarioSpecsPath() {
+        String s = (String) ScenarioDataStore.get(SCENARIO_SPECS_PATH_KEY_NAME);
+        return s!=null ? s : "specs/";
     }
 
     @BeforeScenario

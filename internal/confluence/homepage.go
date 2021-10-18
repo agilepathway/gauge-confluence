@@ -60,7 +60,7 @@ func (h *homepage) publish() error {
 		return err
 	}
 
-	return h.apiClient.UpdatePage(h.spaceKey, h.id, h.title, body, newVersion)
+	return h.apiClient.UpdatePageWithWikiFormattedContent(h.spaceKey, h.id, h.title, body, newVersion)
 }
 
 func title(s *space) (string, error) {

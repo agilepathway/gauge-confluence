@@ -65,25 +65,20 @@ func (c *Client) CreatePage(spaceKey, title, body, parentPageID string) (pageID 
 	return responseContent.ID, nil
 }
 
-// UpdatePage updates an existing page in Confluence.
-func (c *Client) UpdatePage(spaceKey, pageID, title, body string, version int) (err error) {
-	requestContent := &goconfluence.Content{
-		Type:  "page",
-		ID:    pageID,
-		Title: title,
-		Body: goconfluence.Body{
-			Storage: goconfluence.Storage{
-				Value:          body,
-				Representation: "wiki",
-			},
-		},
-		Space:   goconfluence.Space{Key: spaceKey},
-		Version: &goconfluence.Version{Number: version},
-	}
+// UpdatePageWithWikiFormattedContent updates an existing page in Confluence with content in Confluence's wiki format.
+//
+// https://confluence.atlassian.com/doc/confluence-wiki-markup-251003035.html
+func (c *Client) UpdatePageWithWikiFormattedContent(spaceKey, pageID, title, body string, version int) (err error) {
+	return c.updatePage(spaceKey, pageID, title, body, "wiki", version)
+}
 
-	_, err = c.goconfluenceClient.UpdateContent(requestContent)
-
-	return err
+// UpdatePageWithStorageFormattedContent updates an existing page in Confluence
+// with content in Confluence's standard "storage" format.
+//
+// https://confluence.atlassian.com/doc/confluence-storage-format-790796544.html
+func (c *Client) UpdatePageWithStorageFormattedContent(spaceKey, pageID, title, body string, version int) (err error) {
+	goconfluence.SetDebug(true)
+	return c.updatePage(spaceKey, pageID, title, body, "storage", version)
 }
 
 // DeletePage deletes a page from Confluence
@@ -92,10 +87,13 @@ func (c *Client) DeletePage(pageID string) (err error) {
 }
 
 // GetPage provides the contents of the Confluence page with the given page ID
-func (c *Client) GetPage(pageID string) (string, error) {
+func (c *Client) GetPage(pageID string) (content string, version int, err error) {
 	path := fmt.Sprintf("content/%s?expand=body.storage", pageID)
 
 	var pageResponse struct {
+		Version struct {
+			Number int `json:"number"`
+		}
 		Body struct {
 			Storage struct {
 				Value string `json:"value"`
@@ -103,13 +101,13 @@ func (c *Client) GetPage(pageID string) (string, error) {
 		} `json:"body"`
 	}
 
-	err := c.httpClient.GetJSON(path, &pageResponse)
+	err = c.httpClient.GetJSON(path, &pageResponse)
 
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return pageResponse.Body.Storage.Value, nil
+	return pageResponse.Body.Storage.Value, pageResponse.Version.Number, nil
 }
 
 // DeleteAllPagesInSpaceExceptHomepage deletes all the pages in the given Space,
@@ -351,4 +349,24 @@ func (c *Client) LastPublished(spaceHomepageID, propertyKey string) (string, int
 	}
 
 	return resp.Value.LastPublished, resp.Version.Number, nil
+}
+
+func (c *Client) updatePage(spaceKey, pageID, title, body, format string, version int) (err error) {
+	requestContent := &goconfluence.Content{
+		Type:  "page",
+		ID:    pageID,
+		Title: title,
+		Body: goconfluence.Body{
+			Storage: goconfluence.Storage{
+				Value:          body,
+				Representation: format,
+			},
+		},
+		Space:   goconfluence.Space{Key: spaceKey},
+		Version: &goconfluence.Version{Number: version},
+	}
+
+	_, err = c.goconfluenceClient.UpdateContent(requestContent)
+
+	return err
 }

@@ -6,7 +6,6 @@ import (
 
 	"github.com/agilepathway/gauge-confluence/internal/confluence/api"
 	"github.com/agilepathway/gauge-confluence/internal/gauge"
-	"github.com/agilepathway/gauge-confluence/internal/logger"
 	"github.com/agilepathway/gauge-confluence/util"
 )
 
@@ -24,6 +23,7 @@ type page struct {
 	body     string
 	parentID string
 	isDir    bool
+	space    space
 }
 
 func newPage(entry gauge.DirEntry, parentID string, spec Spec) (page, error) {
@@ -54,11 +54,14 @@ func (p *page) isSpec() bool {
 }
 
 func (p *page) removeLineBreaks(apiClient api.Client) error {
-	content, err := apiClient.GetPage(p.id)
-	strippedContent := strings.ReplaceAll(content, "<br />", "")
-	logger.Debugf(true, strippedContent)
+	content, version, err := apiClient.GetPage(p.id)
+	if err != nil {
+		return err
+	}
 
-	// update the page with the new content
+	strippedContent := strings.ReplaceAll(content, "<br />", "")
+
+	err = apiClient.UpdatePageWithStorageFormattedContent(p.space.key, p.id, p.title, strippedContent, version+1)
 
 	return err
 }

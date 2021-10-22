@@ -10,8 +10,8 @@ The Gauge Confluence plugin will exit with a non-zero exit code if the dry run f
 state for publishing.  This means that the CI/CD pipeline can use the exit code (0 for success, not 0 for fail) to pass
 or fail the dry run build (and indeed the actual build too, when not running in dry run mode).
 
-The dry run mode is set by setting a `DRY_RUN` [environment variable or property][2] with the value `true` (we can't
-use a command-line flag for this as [Gauge does not propagate command line flags to documentation plugins][1]).
+The dry run mode is set by setting a `DRY_RUN` [environment variable or property][1] with the value `true` (we can't
+use a command-line flag for this as [Gauge does not propagate command line flags to documentation plugins][2]).
 
 
    |spec 1 heading|spec 2 heading|did dry run succeed?|message                      |

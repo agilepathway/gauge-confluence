@@ -1,6 +1,6 @@
 {
     "id": "confluence",
-    "version": "0.18.2",
+    "version": "0.18.3",
     "name": "Confluence",
     "description": "Publishes Gauge specifications to Confluence",
     "install": {

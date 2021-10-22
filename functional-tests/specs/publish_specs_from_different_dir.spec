@@ -2,8 +2,7 @@
 
 tags: create-space-manually
 
-Gauge documentation plugins allow for any directory containing specs to be specified
-as a command-line argument to the plugin.
+Gauge documentation plugins allow for any directory containing specs to be specified as a command-line argument to the plugin.
 
 ## Publish from a different directory than the default specs directory
 

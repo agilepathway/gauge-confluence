@@ -23,8 +23,7 @@ Tags: create-space-manually
 
 * Publish "1" specs to Confluence
 
-The version number is 2 after the initial publish because the plugin immediately updates the homepage that
-was initially created with default content when the space was created by the plugin, on the same plugin run.
+The version number is 2 after the initial publish because the plugin immediately updates the homepage that was initially created with default content when the space was created by the plugin, on the same plugin run.
 * Homepage version number is "2"
 
 * Publish "1" specs to Confluence

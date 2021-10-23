@@ -18,6 +18,7 @@ type homepage struct {
 	title     string
 	apiClient api.Client
 	version   int
+	err       error
 }
 
 func newHomepage(s *space) (homepage, error) {
@@ -29,26 +30,26 @@ func newHomepage(s *space) (homepage, error) {
 	logger.Debugf(false, "Space homepage version: %d", version)
 
 	if err != nil {
-		return homepage{}, err
+		return homepage{err: err}, err
 	}
 
 	if id == "" {
-		return homepage{}, fmt.Errorf("the Confluence space with key %s has no homepage - "+
+		err = fmt.Errorf("the Confluence space with key %s has no homepage - "+
 			"add a homepage manually in Confluence to the space, then try again", s.key)
+		return homepage{err: err}, err
 	}
 
 	title, err := title(s)
 
-	h := homepage{
+	return homepage{
 		id:        id,
 		created:   time.NewTime(created),
 		childless: children == 0,
 		spaceKey:  s.key,
 		title:     title,
 		version:   version,
-		apiClient: a}
-
-	return h, err
+		apiClient: a,
+		err:       err}, err
 }
 
 func (h *homepage) publish() error {
@@ -64,8 +65,11 @@ func (h *homepage) publish() error {
 }
 
 func title(s *space) (string, error) {
-	n, err := s.name()
-	return fmt.Sprintf("%s Home", n), err
+	if s.err != nil {
+		return "", s.err
+	}
+
+	return fmt.Sprintf("%s Home", s.name()), s.err
 }
 
 func (h *homepage) body() (string, error) {
@@ -89,7 +93,11 @@ func (h *homepage) body() (string, error) {
 // time because it is not easy at all for the user of the plugin to know the time offset for CQL
 // queries required by their Confluence instance - see:
 // https://community.atlassian.com/t5/Confluence-questions/How-do-I-pass-a-UTC-time-as-the-value-of-lastModified-in-a-REST/qaq-p/1557903
-func (h *homepage) cqlTimeOffset() (int, error) {
+func (h *homepage) cqlTimeOffset() int {
+	if h.err != nil {
+		return 0
+	}
+
 	logger.Debugf(false, "Confluence homepage ID is %s for space %s", h.spaceKey, h.id)
 	logger.Debugf(false, "Homepage created at: %v (UTC)", h.created)
 	// nolint:gomnd
@@ -115,5 +123,9 @@ func (h *homepage) cqlTimeOffset() (int, error) {
 		return fmt.Errorf("could not calculate time offset for Confluence CQL searches")
 	})
 
-	return offset, err
+	if err != nil {
+		h.err = err
+	}
+
+	return offset
 }

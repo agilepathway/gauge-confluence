@@ -23,7 +23,7 @@ type space struct {
 	lastPublished              time.LastPublished
 	modifiedSinceLastPublished bool
 	apiClient                  api.Client
-	cqlOffset                  int // Number of hours that CQL queries are to be offset (against UTC) by
+	err                        error
 }
 
 // newSpace initialises a new space.
@@ -31,22 +31,24 @@ func newSpace(apiClient api.Client) space {
 	return space{publishedPages: make(map[string]page), apiClient: apiClient}
 }
 
-func retrieveOrGenerateKey() (string, error) {
+func (s *space) retrieveOrGenerateKey() {
 	retrievedKey := os.Getenv("CONFLUENCE_SPACE_KEY")
-	if retrievedKey != "" {
-		return retrievedKey, nil
-	}
 
-	return generateKey()
+	if retrievedKey == "" {
+		s.key = s.generateKey()
+	} else {
+		s.key = retrievedKey
+	}
 }
 
-func generateKey() (string, error) {
+func (s *space) generateKey() string {
 	gitWebURL, err := git.WebURL()
 	if err != nil {
-		return "", err
+		s.err = err
+		return ""
 	}
 
-	return keyFmt(gitWebURL), nil
+	return keyFmt(gitWebURL)
 }
 
 func keyFmt(u *url.URL) string {
@@ -62,129 +64,89 @@ func (s *space) checkRequiredConfigVars() {
 	env.GetRequired("CONFLUENCE_TOKEN")
 }
 
-func (s *space) setup() error { // nolint:funlen
+func (s *space) setup() {
 	s.checkRequiredConfigVars()
-
-	key, err := retrieveOrGenerateKey()
-	if err != nil {
-		return err
-	}
-
-	s.key = key
-
-	err = s.createIfDoesNotAlreadyExist()
-	if err != nil {
-		return err
-	}
-
-	h, err := newHomepage(s)
-	if err != nil {
-		return err
-	}
-
-	s.homepage = h
-	s.cqlOffset, err = s.homepage.cqlTimeOffset()
-
-	if err != nil {
-		return err
-	}
-
-	lastPublishedString, version, err := s.apiClient.LastPublished(s.homepage.id, time.LastPublishedPropertyKey)
-	if err != nil {
-		return err
-	}
-
-	logger.Debugf(false, "Last published: %s", lastPublishedString)
-	logger.Debugf(false, "Last published version: %d", version)
-
-	s.lastPublished = time.NewLastPublished(lastPublishedString, version)
-
-	if s.lastPublished.Version == 0 {
-		blankSpace, err := s.isBlank()
-
-		if err != nil {
-			return err
-		}
-
-		if blankSpace {
-			return nil
-		}
-
-		return fmt.Errorf("the space must be empty when you publish for the first time. "+
-			"It can contain a homepage but no other pages. Space key: %s", s.key)
-	}
-
-	cqlTime := s.lastPublished.Time.CQLFormat(s.cqlOffset)
-
-	m, err := s.apiClient.IsSpaceModifiedSinceLastPublished(s.key, cqlTime)
-	if err != nil {
-		return err
-	}
-
-	s.modifiedSinceLastPublished = m
-
-	if s.modifiedSinceLastPublished {
-		return fmt.Errorf("the space has been modified since the last publish. Space key: %s", s.key)
-	}
-
-	return nil
+	s.retrieveOrGenerateKey()
+	s.createIfDoesNotAlreadyExist()
+	s.homepage, s.err = newHomepage(s)
+	s.checkUnmodifiedSinceLastPublish()
 }
 
-func (s *space) createIfDoesNotAlreadyExist() (err error) {
-	spaceExists, err := s.exists()
-	if err != nil {
-		return err
+func (s *space) checkUnmodifiedSinceLastPublish() {
+	if s.err != nil {
+		return
 	}
 
-	if spaceExists {
-		return nil
+	s.lastPublished = time.NewLastPublished(s.apiClient, s.homepage.id)
+	if s.lastPublished.Version == 0 {
+		if s.isBlank() {
+			return
+		}
+
+		s.err = fmt.Errorf("the space must be empty when you publish for the first time. "+
+			"It can contain a homepage but no other pages. Space key: %s", s.key)
+
+		return
+	}
+
+	cqlTime := s.lastPublished.Time.CQLFormat(s.homepage.cqlTimeOffset())
+	s.modifiedSinceLastPublished, s.err = s.apiClient.IsSpaceModifiedSinceLastPublished(s.key, cqlTime)
+
+	if s.modifiedSinceLastPublished {
+		s.err = fmt.Errorf("the space has been modified since the last publish. Space key: %s", s.key)
+	}
+}
+
+func (s *space) createIfDoesNotAlreadyExist() {
+	if (s.err != nil) || (s.exists()) {
+		return
 	}
 
 	logger.Infof(true, "Space with key %s does not already exist, creating it ...", s.key)
 
-	return s.createSpace()
+	s.createSpace()
 }
 
-func (s *space) createSpace() error {
-	name, err := s.name()
-	if err != nil {
-		return err
+func (s *space) createSpace() {
+	if s.err != nil {
+		return
 	}
 
-	description, err := s.description()
-	if err != nil {
-		return err
-	}
+	s.err = s.apiClient.CreateSpace(s.key, s.name(), s.description())
 
-	err = s.apiClient.CreateSpace(s.key, name, description)
-
-	if err != nil {
-		e, ok := err.(*http.RequestError)
+	if s.err != nil {
+		e, ok := s.err.(*http.RequestError)
 		if ok && e.StatusCode == 403 { //nolint:gomnd
-			return fmt.Errorf("the Confluence user %s does not have permission to create the Confluence Space. "+
+			s.err = fmt.Errorf("the Confluence user %s does not have permission to create the Confluence Space. "+
 				"Either rerun the plugin with a user who does have permissions to create the Space, "+
 				"or get someone to create the Space manually and then run the plugin again. "+
 				"Also check the password or token you supplied for the Confluence user is correct",
 				env.GetRequired("CONFLUENCE_USERNAME"))
 		}
 	}
-
-	return err
 }
 
-func (s *space) name() (string, error) {
-	gitRemoteURLPath, err := git.RemoteURLPath()
-	if err != nil {
-		return "", err
+func (s *space) name() string {
+	if s.err != nil {
+		return ""
 	}
 
-	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath), nil
+	var gitRemoteURLPath string
+
+	gitRemoteURLPath, s.err = git.RemoteURLPath()
+
+	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath)
 }
 
-func (s *space) description() (string, error) {
+func (s *space) description() string {
+	if s.err != nil {
+		return ""
+	}
+
 	gitWebURL, err := git.WebURL()
 	if err != nil {
-		return "", err
+		s.err = err
+		return ""
 	}
 
 	return fmt.Sprintf("Gauge (https://gauge.org) specifications from %s, "+
@@ -192,23 +154,24 @@ func (s *space) description() (string, error) {
 		"(https://github.com/agilepathway/gauge-confluence) as living documentation.  "+
 		"Do not edit this Space manually.  "+
 		"You can use Confluence's Include Macro (https://confluence.atlassian.com/doc/include-page-macro-139514.html) "+
-		"to include these specifications in as many of your existing Confluence Spaces as you wish.", gitWebURL), nil
+		"to include these specifications in as many of your existing Confluence Spaces as you wish.", gitWebURL)
 }
 
-func (s *space) exists() (bool, error) {
-	return s.apiClient.DoesSpaceExist(s.key)
+func (s *space) exists() bool {
+	doesSpaceExist, err := s.apiClient.DoesSpaceExist(s.key)
+	s.err = err
+
+	return doesSpaceExist
 }
 
-func (s *space) isBlank() (bool, error) {
+func (s *space) isBlank() bool {
 	totalPagesInSpace, err := s.apiClient.TotalPagesInSpace(s.key)
 
 	logger.Debugf(false, "Total pages in Confluence space prior to publishing: %d", totalPagesInSpace)
 
-	if err != nil {
-		return false, err
-	}
+	s.err = err
 
-	return totalPagesInSpace <= 1, nil
+	return totalPagesInSpace <= 1
 }
 
 func (s *space) parentPageIDFor(path string) string {

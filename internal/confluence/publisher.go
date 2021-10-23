@@ -67,10 +67,6 @@ func (p *Publisher) Publish(specPaths []string) (err error) { //nolint:funlen
 		return p.space.err
 	}
 
-	if p.space.homepage.err != nil {
-		return p.space.homepage.err
-	}
-
 	err = p.space.deleteAllPagesExceptHomepage()
 
 	if err != nil {

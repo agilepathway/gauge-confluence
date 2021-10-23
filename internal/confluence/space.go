@@ -68,6 +68,7 @@ func (s *space) setup() {
 	s.checkRequiredConfigVars()
 	s.retrieveOrGenerateKey()
 	s.createIfDoesNotAlreadyExist()
+	s.homepage, s.err = newHomepage(s)
 	s.checkUnmodifiedSinceLastPublish()
 }
 
@@ -76,9 +77,7 @@ func (s *space) checkUnmodifiedSinceLastPublish() {
 		return
 	}
 
-	s.homepage = newHomepage(s)
 	s.lastPublished = time.NewLastPublished(s.apiClient, s.homepage.id)
-
 	if s.lastPublished.Version == 0 {
 		if s.isBlank() {
 			return

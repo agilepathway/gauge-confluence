@@ -21,7 +21,7 @@ type homepage struct {
 	err       error
 }
 
-func newHomepage(s *space) homepage {
+func newHomepage(s *space) (homepage, error) {
 	a := s.apiClient
 	id, children, created, version, err := a.SpaceHomepage(s.key)
 	logger.Debugf(false, "Space homepage id: %s", id)
@@ -30,12 +30,12 @@ func newHomepage(s *space) homepage {
 	logger.Debugf(false, "Space homepage version: %d", version)
 
 	if err != nil {
-		return homepage{err: err}
+		return homepage{err: err}, err
 	}
 
 	if id == "" {
 		return homepage{err: fmt.Errorf("the Confluence space with key %s has no homepage - "+
-			"add a homepage manually in Confluence to the space, then try again", s.key)}
+			"add a homepage manually in Confluence to the space, then try again", s.key)}, err
 	}
 
 	title, err := title(s)
@@ -48,7 +48,7 @@ func newHomepage(s *space) homepage {
 		title:     title,
 		version:   version,
 		apiClient: a,
-		err:       err}
+		err:       err}, err
 }
 
 func (h *homepage) publish() error {

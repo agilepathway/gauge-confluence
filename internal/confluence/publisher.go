@@ -61,9 +61,14 @@ func (p *Publisher) Publish(specPaths []string) (err error) { //nolint:funlen
 	logger.Infof(true, "Checking finished successfully")
 	logger.Infof(true, "Publishing Gauge specs to Confluence ...")
 
-	err = p.space.setup()
-	if err != nil {
-		return err
+	p.space.setup()
+
+	if p.space.err != nil {
+		return p.space.err
+	}
+
+	if p.space.homepage.err != nil {
+		return p.space.homepage.err
 	}
 
 	err = p.space.deleteAllPagesExceptHomepage()

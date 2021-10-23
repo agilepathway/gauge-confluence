@@ -23,7 +23,6 @@ type space struct {
 	lastPublished              time.LastPublished
 	modifiedSinceLastPublished bool
 	apiClient                  api.Client
-	cqlOffset                  int // Number of hours that CQL queries are to be offset (against UTC) by
 	err                        error
 }
 
@@ -32,22 +31,24 @@ func newSpace(apiClient api.Client) space {
 	return space{publishedPages: make(map[string]page), apiClient: apiClient}
 }
 
-func retrieveOrGenerateKey() (string, error) {
+func (s *space) retrieveOrGenerateKey() {
 	retrievedKey := os.Getenv("CONFLUENCE_SPACE_KEY")
-	if retrievedKey != "" {
-		return retrievedKey, nil
-	}
 
-	return generateKey()
+	if retrievedKey == "" {
+		s.key = s.generateKey()
+	} else {
+		s.key = retrievedKey
+	}
 }
 
-func generateKey() (string, error) {
+func (s *space) generateKey() string {
 	gitWebURL, err := git.WebURL()
 	if err != nil {
-		return "", err
+		s.err = err
+		return ""
 	}
 
-	return keyFmt(gitWebURL), nil
+	return keyFmt(gitWebURL)
 }
 
 func keyFmt(u *url.URL) string {
@@ -63,70 +64,42 @@ func (s *space) checkRequiredConfigVars() {
 	env.GetRequired("CONFLUENCE_TOKEN")
 }
 
-func (s *space) setup() error {
+func (s *space) setup() {
 	s.checkRequiredConfigVars()
-	s.key, s.err = retrieveOrGenerateKey()
+	s.retrieveOrGenerateKey()
 	s.createIfDoesNotAlreadyExist()
-
-	h, err := newHomepage(s)
-	if err != nil {
-		return err
-	}
-
-	s.homepage = h
-	s.cqlOffset, err = s.homepage.cqlTimeOffset()
-
-	if err != nil {
-		return err
-	}
-
-	lastPublishedString, version, err := s.apiClient.LastPublished(s.homepage.id, time.LastPublishedPropertyKey)
-	if err != nil {
-		return err
-	}
-
-	logger.Debugf(false, "Last published: %s", lastPublishedString)
-	logger.Debugf(false, "Last published version: %d", version)
-
-	s.lastPublished = time.NewLastPublished(lastPublishedString, version)
-
-	if s.lastPublished.Version == 0 {
-		blankSpace, err := s.isBlank()
-
-		if err != nil {
-			return err
-		}
-
-		if blankSpace {
-			return nil
-		}
-
-		return fmt.Errorf("the space must be empty when you publish for the first time. "+
-			"It can contain a homepage but no other pages. Space key: %s", s.key)
-	}
-
-	cqlTime := s.lastPublished.Time.CQLFormat(s.cqlOffset)
-
-	m, err := s.apiClient.IsSpaceModifiedSinceLastPublished(s.key, cqlTime)
-	if err != nil {
-		return err
-	}
-
-	s.modifiedSinceLastPublished = m
-
-	if s.modifiedSinceLastPublished {
-		return fmt.Errorf("the space has been modified since the last publish. Space key: %s", s.key)
-	}
-
-	return nil
+	s.checkUnmodifiedSinceLastPublish()
 }
 
-func (s *space) createIfDoesNotAlreadyExist() {
+func (s *space) checkUnmodifiedSinceLastPublish() {
 	if s.err != nil {
 		return
 	}
 
-	if s.exists() {
+	s.homepage = newHomepage(s)
+	s.lastPublished = time.NewLastPublished(s.apiClient, s.homepage.id)
+
+	if s.lastPublished.Version == 0 {
+		if s.isBlank() {
+			return
+		}
+
+		s.err = fmt.Errorf("the space must be empty when you publish for the first time. "+
+			"It can contain a homepage but no other pages. Space key: %s", s.key)
+
+		return
+	}
+
+	cqlTime := s.lastPublished.Time.CQLFormat(s.homepage.cqlTimeOffset())
+	s.modifiedSinceLastPublished, s.err = s.apiClient.IsSpaceModifiedSinceLastPublished(s.key, cqlTime)
+
+	if s.modifiedSinceLastPublished {
+		s.err = fmt.Errorf("the space has been modified since the last publish. Space key: %s", s.key)
+	}
+}
+
+func (s *space) createIfDoesNotAlreadyExist() {
+	if (s.err != nil) || (s.exists()) {
 		return
 	}
 
@@ -192,16 +165,14 @@ func (s *space) exists() bool {
 	return doesSpaceExist
 }
 
-func (s *space) isBlank() (bool, error) {
+func (s *space) isBlank() bool {
 	totalPagesInSpace, err := s.apiClient.TotalPagesInSpace(s.key)
 
 	logger.Debugf(false, "Total pages in Confluence space prior to publishing: %d", totalPagesInSpace)
 
-	if err != nil {
-		return false, err
-	}
+	s.err = err
 
-	return totalPagesInSpace <= 1, nil
+	return totalPagesInSpace <= 1
 }
 
 func (s *space) parentPageIDFor(path string) string {

@@ -10,9 +10,7 @@
 
 * Space has name "Gauge specs for example-user/example-repo"
 
-The `example-user/example-repo` comes from the [dummy Git remote URL config in the
-test framework code][1].  When users run the plugin the Space name will be taken from 
-the Git remote URL of the Git repository that the plugin is executed on.
+The `example-user/example-repo` comes from the [dummy Git remote URL config in the test framework code][1].  When users run the plugin the Space name will be taken from the Git remote URL of the Git repository that the plugin is executed on.
 
 * Output contains "Success: published 2 specs and directory pages to Confluence Space named: Gauge specs for example-user/example-repo"
 

@@ -1,14 +1,10 @@
 # Duplicate spec headings and directory names
-Tags: create-space-manually
 
-The page title for every page in a Confluence space must be unique.
-We use the specification heading as the Confluence page title.
-And for directories we use the directory name as the Confluence page title.
-So this means that there can be no duplicates among the spec headings and directory names.
-NB the spec filenames are not relevant, it's just the spec headings and the directory names which must be unique.
+tags: create-space-manually
 
-This table shows examples with two specifications, as there needs to be at least two specs for there to be a
-chance of duplicate spec headings.
+The page title for every page in a Confluence space must be unique. We use the specification heading as the Confluence page title. And for directories we use the directory name as the Confluence page title. So this means that there can be no duplicates among the spec headings and directory names. NB the spec filenames are not relevant, it's just the spec headings and the directory names which must be unique.
+
+This table shows examples with two specifications, as there needs to be at least two specs for there to be a chance of duplicate spec headings.
 
    |spec 1 heading|spec 1 path  |spec 2 heading|spec 2 path      |did publishing occur?|message                                       |
    |--------------|-------------|--------------|-----------------|---------------------|----------------------------------------------|

@@ -3,8 +3,7 @@
 tags: create-space-manually
 
 ## All specs are published, including those in subdirectories
-The specs are published to Confluence as a page tree, mirroring the directory structure of the specs.  This means that
-as well as a Confluence page being created for each spec, a page is also created for each directory.
+The specs are published to Confluence as a page tree, mirroring the directory structure of the specs.  This means that as well as a Confluence page being created for each spec, a page is also created for each directory.
 
 * Publish specs to Confluence:
 

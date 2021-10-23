@@ -34,8 +34,9 @@ func newHomepage(s *space) (homepage, error) {
 	}
 
 	if id == "" {
-		return homepage{err: fmt.Errorf("the Confluence space with key %s has no homepage - "+
-			"add a homepage manually in Confluence to the space, then try again", s.key)}, err
+		err = fmt.Errorf("the Confluence space with key %s has no homepage - "+
+			"add a homepage manually in Confluence to the space, then try again", s.key)
+		return homepage{err: err}, err
 	}
 
 	title, err := title(s)

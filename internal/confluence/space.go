@@ -140,16 +140,10 @@ func (s *space) createSpace() {
 		return
 	}
 
-	name := s.name()
+	s.err = s.apiClient.CreateSpace(s.key, s.name(), s.description())
 
-	description, err := s.description()
-
-	s.err = err
-
-	err = s.apiClient.CreateSpace(s.key, name, description)
-
-	if err != nil {
-		e, ok := err.(*http.RequestError)
+	if s.err != nil {
+		e, ok := s.err.(*http.RequestError)
 		if ok && e.StatusCode == 403 { //nolint:gomnd
 			s.err = fmt.Errorf("the Confluence user %s does not have permission to create the Confluence Space. "+
 				"Either rerun the plugin with a user who does have permissions to create the Space, "+
@@ -165,17 +159,22 @@ func (s *space) name() string {
 		return ""
 	}
 
-	gitRemoteURLPath, err := git.RemoteURLPath()
+	var gitRemoteURLPath string
 
-	s.err = err
+	gitRemoteURLPath, s.err = git.RemoteURLPath()
 
 	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath)
 }
 
-func (s *space) description() (string, error) {
+func (s *space) description() string {
+	if s.err != nil {
+		return ""
+	}
+
 	gitWebURL, err := git.WebURL()
 	if err != nil {
-		return "", err
+		s.err = err
+		return ""
 	}
 
 	return fmt.Sprintf("Gauge (https://gauge.org) specifications from %s, "+
@@ -183,7 +182,7 @@ func (s *space) description() (string, error) {
 		"(https://github.com/agilepathway/gauge-confluence) as living documentation.  "+
 		"Do not edit this Space manually.  "+
 		"You can use Confluence's Include Macro (https://confluence.atlassian.com/doc/include-page-macro-139514.html) "+
-		"to include these specifications in as many of your existing Confluence Spaces as you wish.", gitWebURL), nil
+		"to include these specifications in as many of your existing Confluence Spaces as you wish.", gitWebURL)
 }
 
 func (s *space) exists() bool {

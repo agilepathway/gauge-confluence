@@ -90,9 +90,10 @@ func (p *Publisher) Publish(specPaths []string) (err error) {
 		return err
 	}
 
-	spaceName, err := p.space.name()
-	if err != nil {
-		return err
+	spaceName := p.space.name()
+
+	if p.space.err != nil {
+		return p.space.err
 	}
 
 	err = p.space.homepage.publish()

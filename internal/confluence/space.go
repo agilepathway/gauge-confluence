@@ -24,6 +24,7 @@ type space struct {
 	modifiedSinceLastPublished bool
 	apiClient                  api.Client
 	cqlOffset                  int // Number of hours that CQL queries are to be offset (against UTC) by
+	err                        error
 }
 
 // newSpace initialises a new space.
@@ -62,20 +63,10 @@ func (s *space) checkRequiredConfigVars() {
 	env.GetRequired("CONFLUENCE_TOKEN")
 }
 
-func (s *space) setup() error { // nolint:funlen
+func (s *space) setup() error {
 	s.checkRequiredConfigVars()
-
-	key, err := retrieveOrGenerateKey()
-	if err != nil {
-		return err
-	}
-
-	s.key = key
-
-	err = s.createIfDoesNotAlreadyExist()
-	if err != nil {
-		return err
-	}
+	s.key, s.err = retrieveOrGenerateKey()
+	s.createIfDoesNotAlreadyExist()
 
 	h, err := newHomepage(s)
 	if err != nil {
@@ -130,55 +121,55 @@ func (s *space) setup() error { // nolint:funlen
 	return nil
 }
 
-func (s *space) createIfDoesNotAlreadyExist() (err error) {
-	spaceExists, err := s.exists()
-	if err != nil {
-		return err
+func (s *space) createIfDoesNotAlreadyExist() {
+	if s.err != nil {
+		return
 	}
 
-	if spaceExists {
-		return nil
+	if s.exists() {
+		return
 	}
 
 	logger.Infof(true, "Space with key %s does not already exist, creating it ...", s.key)
 
-	return s.createSpace()
+	s.createSpace()
 }
 
-func (s *space) createSpace() error {
-	name, err := s.name()
-	if err != nil {
-		return err
+func (s *space) createSpace() {
+	if s.err != nil {
+		return
 	}
 
+	name := s.name()
+
 	description, err := s.description()
-	if err != nil {
-		return err
-	}
+
+	s.err = err
 
 	err = s.apiClient.CreateSpace(s.key, name, description)
 
 	if err != nil {
 		e, ok := err.(*http.RequestError)
 		if ok && e.StatusCode == 403 { //nolint:gomnd
-			return fmt.Errorf("the Confluence user %s does not have permission to create the Confluence Space. "+
+			s.err = fmt.Errorf("the Confluence user %s does not have permission to create the Confluence Space. "+
 				"Either rerun the plugin with a user who does have permissions to create the Space, "+
 				"or get someone to create the Space manually and then run the plugin again. "+
 				"Also check the password or token you supplied for the Confluence user is correct",
 				env.GetRequired("CONFLUENCE_USERNAME"))
 		}
 	}
-
-	return err
 }
 
-func (s *space) name() (string, error) {
-	gitRemoteURLPath, err := git.RemoteURLPath()
-	if err != nil {
-		return "", err
+func (s *space) name() string {
+	if s.err != nil {
+		return ""
 	}
 
-	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath), nil
+	gitRemoteURLPath, err := git.RemoteURLPath()
+
+	s.err = err
+
+	return fmt.Sprintf("Gauge specs for %s", gitRemoteURLPath)
 }
 
 func (s *space) description() (string, error) {
@@ -195,8 +186,11 @@ func (s *space) description() (string, error) {
 		"to include these specifications in as many of your existing Confluence Spaces as you wish.", gitWebURL), nil
 }
 
-func (s *space) exists() (bool, error) {
-	return s.apiClient.DoesSpaceExist(s.key)
+func (s *space) exists() bool {
+	doesSpaceExist, err := s.apiClient.DoesSpaceExist(s.key)
+	s.err = err
+
+	return doesSpaceExist
 }
 
 func (s *space) isBlank() (bool, error) {

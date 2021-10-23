@@ -64,8 +64,11 @@ func (h *homepage) publish() error {
 }
 
 func title(s *space) (string, error) {
-	n, err := s.name()
-	return fmt.Sprintf("%s Home", n), err
+	if s.err != nil {
+		return "", s.err
+	}
+
+	return fmt.Sprintf("%s Home", s.name()), s.err
 }
 
 func (h *homepage) body() (string, error) {

@@ -43,7 +43,7 @@ func makeSpecsMap(m *gauge_messages.SpecDetails) map[string]Spec {
 }
 
 // Publish publishes all Gauge specifications under the given paths to Confluence.
-func (p *Publisher) Publish(specPaths []string) (err error) {
+func (p *Publisher) Publish(specPaths []string) (err error) { //nolint:funlen
 	logger.Infof(true, "Checking specs are in a valid state for publishing to Confluence ...")
 
 	for _, specPath := range specPaths {
@@ -61,9 +61,10 @@ func (p *Publisher) Publish(specPaths []string) (err error) {
 	logger.Infof(true, "Checking finished successfully")
 	logger.Infof(true, "Publishing Gauge specs to Confluence ...")
 
-	err = p.space.setup()
-	if err != nil {
-		return err
+	p.space.setup()
+
+	if p.space.err != nil {
+		return p.space.err
 	}
 
 	err = p.space.deleteAllPagesExceptHomepage()
@@ -90,9 +91,10 @@ func (p *Publisher) Publish(specPaths []string) (err error) {
 		return err
 	}
 
-	spaceName, err := p.space.name()
-	if err != nil {
-		return err
+	spaceName := p.space.name()
+
+	if p.space.err != nil {
+		return p.space.err
 	}
 
 	err = p.space.homepage.publish()
